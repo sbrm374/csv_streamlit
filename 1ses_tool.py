@@ -27,7 +27,7 @@ st.sidebar.download_button(
 
 # セッションステートの初期化
 if "contracts" not in st.session_state:
-    if os.path.exists(CSV_FILE_PATH):=
+    if os.path.exists(CSV_FILE_PATH):
         st.session_state["contracts"] = pd.read_csv(CSV_FILE_PATH)
     else:
         st.session_state["contracts"] = pd.DataFrame(columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"])
