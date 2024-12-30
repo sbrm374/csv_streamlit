@@ -105,7 +105,7 @@ with st.sidebar.form("add_engineer_form"):
     submitted = st.form_submit_button("追加")
 
     if submitted:
-        new_row = pd.DataFrame({
+        new_row = pd.DataFrame([{
             "エンジニア名": engineer_name,
             "スキル": skill,
             "顧客名": client_name,
@@ -113,7 +113,7 @@ with st.sidebar.form("add_engineer_form"):
             "終了日": pd.to_datetime(end_date),
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": False,
-        }
+        }])
         st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
         st.success("エンジニア情報を追加しました。")
         st.experimental_rerun()
