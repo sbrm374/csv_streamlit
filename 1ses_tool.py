@@ -115,5 +115,8 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": False,
         }])
         st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
-        st.success("エンジニア情報を追加しました。")
-        st.rerun()
+        st.session_state["contracts"].to_csv(CSV_FILE_PATH, index=False, encoding="utf-8-sig")
+        st.success("エンジニア情報を追加し、CSVファイルに保存しました！")        
+
+st.write("契約一覧")
+st.dataframe(st.session_state["contracts"], use_container_width=True)
