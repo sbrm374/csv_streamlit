@@ -20,7 +20,10 @@ if "contracts" not in st.session_state:
         sample_data | {
             "開始日": pd.to_datetime(sample_data["開始日"]),
             "終了日": pd.to_datetime(sample_data["終了日"]),
-            "継続日数": [(datetime.now() - pd.to_datetime(start)).days for start in sample_data["開始日"]],
+            "継続日数": [
+                (datetime.now() - pd.to_datetime(start)).days
+                for start in sample_data["開始日"]
+            ],
             "アラート非表示": [False] * len(sample_data["エンジニア名"]),
         }
     )
@@ -74,4 +77,4 @@ with st.sidebar.form("add_engineer_form"):
 
         # 성공 메시지
         st.success("エンジニア情報を追加しました。")
-        st.rerun()
+        st.experimental_rerun()
