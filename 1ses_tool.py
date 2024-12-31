@@ -1,43 +1,100 @@
 import streamlit as st
 import pandas as pd
-import os
-from datetime import datetime
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 
-# 파일 저장 경로 설정
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_DIR = os.path.join(BASE_DIR, "uploaded_files")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-# Streamlit 앱 초기화
+# タイトル
 st.title("SES事業継続率管理ツール")
 
-# CSV 업로드 처리
-uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
-if uploaded_file is not None:
-    # 업로드된 파일 로컬에 저장
-    uploaded_file_path = os.path.join(UPLOAD_DIR, uploaded_file.name)
-    with open(uploaded_file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+# サンプルCSVデータ
+sample_data = {
+    "エンジニア名": ["山田太郎", "佐藤花子", "鈴木一郎", "田中次郎"],
+    "スキル": ["Python, AWS", "Java, Spring", "React, JavaScript", "C#, .NET"],
+    "顧客名": ["顧客A", "顧客B", "顧客C", "顧客D"],
+    "開始日": ["2023-01-01", "2023-05-01", "2023-06-01", "2023-02-01"],
+    "終了日": ["2023-12-31", "2024-04-30", "2023-12-31", "2024-01-31"],
+}
 
-    try:
-        # CSV 파일 읽기
-        df = pd.read_csv(uploaded_file_path, encoding="utf-8")
-        st.session_state["contracts"] = df  # 세션에 저장
-        st.success(f"アップロードしたファイル: {uploaded_file_path} を読み込みました。")
-    except Exception as e:
-        st.error(f"CSVファイルの読み込み中にエラーが発生しました: {e}")
+# サンプルCSVをダウンロードできるようにする
+sample_df = pd.DataFrame(sample_data)
+sample_csv = sample_df.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+st.sidebar.download_button(
+    label="サンプルCSVをダウンロード",
+    data=sample_csv,
+    file_name="sample_ses_data.csv",
+    mime="text/csv",
+)
 
-# 데이터 로드 (업로드된 파일이 없는 경우 초기화)
+# セッションステートの初期化
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
         columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
     )
 
-# 데이터 표시
-st.subheader("現在の契約一覧")
-st.dataframe(st.session_state["contracts"], use_container_width=True)
+# CSVファイルアップロード
+uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 
-# 새로운 행 추가 폼
+# CSVの読み込みとデータ初期化
+if uploaded_file is not None:
+    try:
+        new_data = pd.read_csv(uploaded_file, encoding="shift_jis")
+        
+        # 必要な列が存在するか確認
+        required_columns = ["エンジニア名", "スキル", "顧客名", "開始日", "終了日"]
+        if not all(col in new_data.columns for col in required_columns):
+            st.error(f"CSVファイルには以下の列が必要です: {', '.join(required_columns)}")
+            st.stop()
+        
+        # 日付変換とエラーチェック
+        new_data["開始日"] = pd.to_datetime(new_data["開始日"], format="%Y-%m-%d", errors="coerce")
+        new_data["終了日"] = pd.to_datetime(new_data["終了日"], format="%Y-%m-%d", errors="coerce")
+        if new_data["開始日"].isna().any() or new_data["終了日"].isna().any():
+            st.error("日付が正しくありません。開始日と終了日はYYYY-MM-DD形式で入力してください。")
+            st.stop()
+        
+        # 継続日数の計算
+        new_data["継続日数"] = (datetime.now() - new_data["開始日"]).dt.days
+        new_data["アラート非表示"] = False
+        
+        # セッションステートに保存
+        st.session_state["contracts"] = new_data
+    except Exception as e:
+        st.error(f"CSVの読み込み中にエラーが発生しました: {e}")
+        st.stop()
+
+# データフレーム取得
+contracts = st.session_state["contracts"]
+
+# タブ表示
+tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
+
+# 最新タブ
+with tab_latest:
+    st.subheader("最新タブ: CSV一覧")
+    if not contracts.empty:
+        st.dataframe(contracts, use_container_width=True)
+    else:
+        st.write("CSVデータがアップロードされていません。")
+
+# 継続タブ
+with tab_ongoing:
+    st.subheader("継続タブ: 継続中の契約")
+    ongoing_data = contracts[contracts["終了日"] > datetime.now()]
+    if not ongoing_data.empty:
+        st.dataframe(ongoing_data, use_container_width=True)
+    else:
+        st.write("現在継続中の契約はありません。")
+
+# 終了タブ
+with tab_completed:
+    st.subheader("終了タブ: 継続が終了した契約")
+    completed_data = contracts[contracts["終了日"] <= datetime.now()]
+    if not completed_data.empty:
+        st.dataframe(completed_data, use_container_width=True)
+    else:
+        st.write("継続が終了した契約はありません。")
+
+# エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
 with st.sidebar.form("add_engineer_form"):
     engineer_name = st.text_input("エンジニア名")
@@ -48,8 +105,7 @@ with st.sidebar.form("add_engineer_form"):
     submitted = st.form_submit_button("追加")
 
     if submitted:
-        # 새로운 데이터프레임 생성
-        new_row = pd.DataFrame([{
+        new_row = {
             "エンジニア名": engineer_name,
             "スキル": skill,
             "顧客名": client_name,
@@ -57,41 +113,7 @@ with st.sidebar.form("add_engineer_form"):
             "終了日": pd.to_datetime(end_date),
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": False,
-        }])
-
-        # 기존 데이터에 새로운 행 추가
-        st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
-
-        # CSV 파일 저장
-        try:
-            st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="utf-8")
-            st.success(f"新しいデータが {uploaded_file_path} に保存されました。")
-
-            # 파일 확인
-            if os.path.exists(uploaded_file_path):
-                with open(uploaded_file_path, "r", encoding="utf-8") as f:
-                    saved_content = f.read()
-                    st.text_area("保存されたCSVの内容を確認", saved_content, height=200)
-            else:
-                st.error(f"保存されたファイルが見つかりません: {uploaded_file_path}")
-
-        except Exception as e:
-            st.error(f"CSVファイルの保存中にエラーが発生しました: {e}")
-
-# 파일 쓰기 테스트
-st.sidebar.subheader("ファイル書き込みテスト")
-if st.sidebar.button("テストファイルを保存"):
-    test_data = pd.DataFrame({"Column1": [1, 2], "Column2": ["A", "B"]})
-    test_file_path = os.path.join(UPLOAD_DIR, "test_file.csv")
-
-    try:
-        test_data.to_csv(test_file_path, index=False, encoding="utf-8")
-        st.success(f"Test data successfully saved to {test_file_path}")
-
-        # 저장된 파일 내용 확인
-        if os.path.exists(test_file_path):
-            with open(test_file_path, "r", encoding="utf-8") as f:
-                test_content = f.read()
-                st.text_area("Test CSV Content", test_content, height=200)
-    except Exception as e:
-        st.error(f"Test file saving failed: {e}")
+        }
+        st.session_state["contracts"] = st.session_state["contracts"].append(new_row, ignore_index=True)
+        st.success("エンジニア情報を追加しました。")
+        st.experimental_rerun()
