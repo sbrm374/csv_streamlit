@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 from matplotlib import rcParams
+import matplotlib.font_manager as fm
 
 # 폰트 설정 (한글 및 한자 깨짐 방지)
 font_path = "./fonts/NotoSansJP-VariableFont_wght.ttf"
