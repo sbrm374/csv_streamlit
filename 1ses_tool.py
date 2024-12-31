@@ -77,3 +77,21 @@ with st.sidebar.form("add_engineer_form"):
 
         except Exception as e:
             st.error(f"CSVファイルの保存中にエラーが発生しました: {e}")
+
+# 파일 쓰기 테스트
+st.sidebar.subheader("ファイル書き込みテスト")
+if st.sidebar.button("テストファイルを保存"):
+    test_data = pd.DataFrame({"Column1": [1, 2], "Column2": ["A", "B"]})
+    test_file_path = os.path.join(UPLOAD_DIR, "test_file.csv")
+
+    try:
+        test_data.to_csv(test_file_path, index=False, encoding="utf-8")
+        st.success(f"Test data successfully saved to {test_file_path}")
+
+        # 저장된 파일 내용 확인
+        if os.path.exists(test_file_path):
+            with open(test_file_path, "r", encoding="utf-8") as f:
+                test_content = f.read()
+                st.text_area("Test CSV Content", test_content, height=200)
+    except Exception as e:
+        st.error(f"Test file saving failed: {e}")
