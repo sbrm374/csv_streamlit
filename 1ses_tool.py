@@ -12,11 +12,6 @@ font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()
 plt.rcParams['axes.unicode_minus'] = False  # 음수 기호 깨짐 방지
 
-# 디버깅 정보 출력
-st.write("Font file exists:", os.path.exists(font_path)) 
-st.write("Loaded font name:", font_prop.get_name())
-st.write("Current font family:", plt.rcParams['font.family'])
-
 # タイトル
 st.title("SES事業継続率管理ツール")
 
@@ -28,6 +23,16 @@ sample_data = {
     "開始日": ["2023-01-01", "2023-05-01", "2023-06-01", "2023-02-01"],
     "終了日": ["2023-12-31", "2024-04-30", "2023-12-31", "2024-01-31"],
 }
+
+# サンプルCSVをダウンロードできるようにする
+sample_df = pd.DataFrame(sample_data)
+sample_csv = sample_df.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+st.sidebar.download_button(
+    label="サンプルCSVをダウンロード",
+    data=sample_csv,
+    file_name="sample_ses_data.csv",
+    mime="text/csv",
+)
 
 # セッションステートの初期化
 if "contracts" not in st.session_state:
