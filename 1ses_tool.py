@@ -167,7 +167,7 @@ with tab_completed:
     st.dataframe(completed_data, use_container_width=True)
     
 
-# 継続率グラフタブ
+# 完了率グラフタブ
 with tab_rate:
     st.subheader("完了率グラフ (スライダー付き)")
     contracts_data = st.session_state["contracts"]
