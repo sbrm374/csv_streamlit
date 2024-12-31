@@ -62,52 +62,55 @@ def calculate_continuity_rate(data):
 
 # 완료율 계산 및 그래프 생성
 def plot_completion_rate(data, freq="M"):
-    if not data.empty:
-        # 모든 날짜 범위 생성
-        end_date = datetime.now() + timedelta(days=90)  # 3달 뒤까지
-        all_dates = pd.date_range(start=data["開始日"].min(), end=end_date, freq=freq)
-        
-        # 날짜별 완료율 계산
-        completion_data = pd.DataFrame(index=all_dates)
-        total = len(st.session_state["contracts"])  # 전체 인원
+    if data.empty:
+        st.write("データがありません。")
+        return
 
-        # 진행 중 및 완료된 인원 계산
-        completion_data["進行中"] = [
-            len(data[(data["開始日"] <= current_date) & (data["終了日"] > current_date)])
-            for current_date in completion_data.index
-        ]
-        completion_data["累計終了"] = [
-            len(data[data["終了日"] <= current_date])
-            for current_date in completion_data.index
-        ]
+    # 모든 날짜 범위 생성 (시작일부터 3달 뒤까지)
+    end_date = datetime.now() + timedelta(days=90)
+    all_dates = pd.date_range(start=data["開始日"].min(), end=end_date, freq=freq)
 
-        # 완료율 계산
-        completion_data["完了率"] = (completion_data["累計終了"] / total) * 100
+    # 날짜별 완료율 계산
+    completion_data = pd.DataFrame(index=all_dates)
+    total = len(st.session_state["contracts"])  # 전체 인원
 
-        # 그래프 생성
-        plt.figure(figsize=(10, 5))
-        plt.step(completion_data.index, completion_data["完了率"], where="mid", label="完了率", linewidth=2)
+    # 진행 중 및 완료된 인원 계산
+    completion_data["進行中"] = [
+        len(data[(data["開始日"] <= current_date) & (data["終了日"] > current_date)])
+        for current_date in completion_data.index
+    ]
+    completion_data["累計終了"] = [
+        len(data[data["終了日"] <= current_date])
+        for current_date in completion_data.index
+    ]
 
-        # X축과 Y축 설정
-        plt.xlim([completion_data.index.min(), end_date])  # X축: 기간
-        plt.ylim([0, 100])  # Y축: 완료율(%) 범위
+    # 완료율 계산
+    completion_data["完了率"] = (completion_data["累計終了"] / total) * 100
 
-        plt.title(f"完了率推移 ({freq})", fontsize=16, fontproperties=font_prop)
-        plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
-        plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
-        plt.xticks(rotation=45, fontproperties=font_prop)
-        plt.yticks(fontproperties=font_prop)
-        plt.grid(True)
+    # 그래프 생성
+    plt.figure(figsize=(10, 5))
+    plt.step(completion_data.index, completion_data["完了率"], where="mid", label="完了率", linewidth=2)
 
-        # 범례 추가
-        plt.legend(prop=font_prop, fontsize=10)
+    # X축과 Y축 설정
+    plt.xlim([completion_data.index.min(), end_date])  # X축: 기간
+    plt.ylim([0, 100])  # Y축: 완료율(%) 범위
 
-        # 그래프를 버퍼에 저장 후 Streamlit에 출력
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png", dpi=300)
-        buf.seek(0)
-        st.image(buf, caption=f"完了率推移 ({freq})", use_container_width=True)
-        buf.close()
+    plt.title(f"完了率推移 ({freq})", fontsize=16, fontproperties=font_prop)
+    plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
+    plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
+    plt.xticks(rotation=45, fontproperties=font_prop)
+    plt.yticks(fontproperties=font_prop)
+    plt.grid(True)
+
+    # 범례 추가
+    plt.legend(prop=font_prop, fontsize=10)
+
+    # 그래프를 버퍼에 저장 후 Streamlit에 출력
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", dpi=300)
+    buf.seek(0)
+    st.image(buf, caption=f"完了率推移 ({freq})", use_container_width=True)
+    buf.close()
 
 # タブ表示
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
