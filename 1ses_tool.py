@@ -81,6 +81,12 @@ with st.sidebar.form("add_engineer_form"):
             try:
                 st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="utf-8")
                 st.success(f"新しいデータが {uploaded_file_path} に保存されました。")
+                
+                # 파일 저장 확인 메시지
+                if os.path.exists(uploaded_file_path):
+                    st.info(f"ファイルが正常に保存されました: {uploaded_file_path}")
+                else:
+                    st.error("ファイルの保存に失敗しました。")
             except Exception as e:
                 st.error(f"CSVファイルの保存中にエラーが発生しました: {e}")
         else:
