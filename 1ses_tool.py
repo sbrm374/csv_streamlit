@@ -14,52 +14,16 @@ sample_data = {
     "終了日": ["2023-12-31", "2024-04-30", "2023-12-31", "2024-01-31"],
 }
 
-# サンプルCSVをダウンロードできるようにする
-sample_df = pd.DataFrame(sample_data)
-sample_csv = sample_df.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
-st.sidebar.download_button(
-    label="サンプルCSVをダウンロード",
-    data=sample_csv,
-    file_name="sample_ses_data.csv",
-    mime="text/csv",
-)
-
 # セッションステートの初期化
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
-        columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
+        sample_data | {
+            "開始日": pd.to_datetime(sample_data["開始日"]),
+            "終了日": pd.to_datetime(sample_data["終了日"]),
+            "継続日数": [(datetime.now() - pd.to_datetime(start)).days for start in sample_data["開始日"]],
+            "アラート非表示": [False] * len(sample_data["エンジニア名"]),
+        }
     )
-
-# CSVファイルアップロード
-uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
-
-# CSVの読み込みとデータ初期化
-if uploaded_file is not None:
-    try:
-        new_data = pd.read_csv(uploaded_file, encoding="shift_jis")
-        
-        # 必要な列が存在するか確認
-        required_columns = ["エンジニア名", "スキル", "顧客名", "開始日", "終了日"]
-        if not all(col in new_data.columns for col in required_columns):
-            st.error(f"CSVファイルには以下の列が必要です: {', '.join(required_columns)}")
-            st.stop()
-        
-        # 日付変換とエラーチェック
-        new_data["開始日"] = pd.to_datetime(new_data["開始日"], format="%Y-%m-%d", errors="coerce")
-        new_data["終了日"] = pd.to_datetime(new_data["終了日"], format="%Y-%m-%d", errors="coerce")
-        if new_data["開始日"].isna().any() or new_data["終了日"].isna().any():
-            st.error("日付が正しくありません。開始日と終了日はYYYY-MM-DD形式で入力してください。")
-            st.stop()
-        
-        # 継続日数の計算
-        new_data["継続日数"] = (datetime.now() - new_data["開始日"]).dt.days
-        new_data["アラート非表示"] = False
-        
-        # セッションステートに保存
-        st.session_state["contracts"] = new_data
-    except Exception as e:
-        st.error(f"CSVの読み込み中にエラーが発生しました: {e}")
-        st.stop()
 
 # タブ表示
 tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
@@ -67,28 +31,19 @@ tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ"
 # 最新タブ
 with tab_latest:
     st.subheader("最新タブ: CSV一覧")
-    if not st.session_state["contracts"].empty:
-        st.dataframe(st.session_state["contracts"], use_container_width=True)
-    else:
-        st.write("現在、データがありません。")
+    st.dataframe(st.session_state["contracts"], use_container_width=True)
 
 # 継続タブ
 with tab_ongoing:
     st.subheader("継続タブ: 継続中の契約")
     ongoing_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] > datetime.now()]
-    if not ongoing_data.empty:
-        st.dataframe(ongoing_data, use_container_width=True)
-    else:
-        st.write("現在継続中の契約はありません。")
+    st.dataframe(ongoing_data, use_container_width=True)
 
 # 終了タブ
 with tab_completed:
     st.subheader("終了タブ: 継続が終了した契約")
     completed_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] <= datetime.now()]
-    if not completed_data.empty:
-        st.dataframe(completed_data, use_container_width=True)
-    else:
-        st.write("継続が終了した契約はありません。")
+    st.dataframe(completed_data, use_container_width=True)
 
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
@@ -102,7 +57,7 @@ with st.sidebar.form("add_engineer_form"):
 
     if submitted:
         # 새 행 생성
-        new_row = pd.DataFrame([{
+        new_row = {
             "エンジニア名": engineer_name,
             "スキル": skill,
             "顧客名": client_name,
@@ -110,13 +65,13 @@ with st.sidebar.form("add_engineer_form"):
             "終了日": pd.to_datetime(end_date),
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": False,
-        }])
+        }
 
         # 세션 상태의 데이터프레임에 행 추가
         st.session_state["contracts"] = pd.concat(
-            [st.session_state["contracts"], new_row], ignore_index=True
+            [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
         )
 
         # 성공 메시지
         st.success("エンジニア情報を追加しました。")
-        st.rerun()
+        st.experimental_rerun()
