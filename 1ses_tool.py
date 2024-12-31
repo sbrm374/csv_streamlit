@@ -3,8 +3,9 @@ import pandas as pd
 import os
 from datetime import datetime
 
-# 업로드된 파일 경로 관리
-uploaded_file_path = None
+# 업로드된 파일 저장 디렉토리
+UPLOAD_DIR = "./uploaded_files/"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 샘플 데이터 생성
 sample_data = {
@@ -33,8 +34,8 @@ st.sidebar.download_button(
 # CSV 업로드 처리
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 if uploaded_file is not None:
-    # 업로드된 파일을 로컬에 저장
-    uploaded_file_path = f"uploaded_{uploaded_file.name}"
+    # 업로드된 파일을 로컬 디렉토리에 저장
+    uploaded_file_path = os.path.join(UPLOAD_DIR, uploaded_file.name)
     with open(uploaded_file_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
     try:
@@ -81,12 +82,12 @@ with st.sidebar.form("add_engineer_form"):
             try:
                 st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="utf-8")
                 st.success(f"新しいデータが {uploaded_file_path} に保存されました。")
-                
-                # 파일 저장 확인 메시지
-                if os.path.exists(uploaded_file_path):
-                    st.info(f"ファイルが正常に保存されました: {uploaded_file_path}")
-                else:
-                    st.error("ファイルの保存に失敗しました。")
+
+                # 저장된 파일 내용 확인
+                with open(uploaded_file_path, "r", encoding="utf-8") as file:
+                    file_content = file.read()
+                    st.text_area("保存されたCSVの内容を確認", file_content, height=200)
+
             except Exception as e:
                 st.error(f"CSVファイルの保存中にエラーが発生しました: {e}")
         else:
