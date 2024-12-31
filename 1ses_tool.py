@@ -3,8 +3,9 @@ import pandas as pd
 import os
 from datetime import datetime
 
-# 업로드된 파일 저장 디렉토리
-UPLOAD_DIR = "./uploaded_files/"
+# 절대 경로 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploaded_files")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 샘플 데이터 생성
