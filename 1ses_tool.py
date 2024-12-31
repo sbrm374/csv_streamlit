@@ -159,14 +159,14 @@ with tab_completed:
     ]
     st.dataframe(completed_data, use_container_width=True)
     
+
 # 継続率グラフタブ
 with tab_rate:
-    st.subheader("完了率グラフ")
+    st.subheader("完了率グラフ (Plotly版)")
     contracts_data = st.session_state["contracts"]
 
     if not contracts_data.empty:
-        # 완료율 그래프 생성
-        plot_completion_rate(contracts_data, freq="D")  # 일별 완료율
+        plot_completion_rate_with_plotly(contracts_data, freq="D")
     else:
         st.write("現在終了した契約がありません。")
 
