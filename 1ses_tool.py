@@ -69,7 +69,7 @@ if uploaded_file is not None:
             new_data["アラート非表示"] = False
             st.session_state["contracts"] = pd.concat([contracts, new_data], ignore_index=True)
             save_data(st.session_state["contracts"])
-            st.experimental_rerun()
+            st.experimental_set_query_params(reload="true")  # 화면 새로고침
     except Exception as e:
         st.error(f"CSV読み込み中にエラーが発生しました: {e}")
 
@@ -113,4 +113,4 @@ with st.sidebar.form("add_engineer_form"):
         st.session_state["contracts"] = pd.concat([contracts, new_row], ignore_index=True)
         save_data(st.session_state["contracts"])
         st.success("エンジニア情報が追加されました。")
-        st.experimental_rerun()
+        st.experimental_set_query_params(reload="true")  # 화면 새로고침
