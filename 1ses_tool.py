@@ -51,6 +51,7 @@ st.sidebar.download_button(
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = load_data()
 
+# 현재 상태 데이터
 contracts = st.session_state["contracts"]
 
 # CSV 업로드 처리
@@ -69,25 +70,23 @@ if uploaded_file is not None:
             new_data["アラート非表示"] = False
             st.session_state["contracts"] = pd.concat([contracts, new_data], ignore_index=True)
             save_data(st.session_state["contracts"])
-            st.experimental_set_query_params(reload="true")  # 화면 새로고침
-    except Exception as e:
-        st.error(f"CSV読み込み中にエラーが発生しました: {e}")
+            st.success("CSVファイルがアップロードされ、データが追加されました。")
 
 # 데이터 표시
 tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
 
 with tab_latest:
     st.subheader("最新タブ: CSV一覧")
-    st.dataframe(contracts, use_container_width=True)
+    st.dataframe(st.session_state["contracts"], use_container_width=True)
 
 with tab_ongoing:
     st.subheader("継続タブ: 継続中の契約")
-    ongoing_data = contracts[contracts["終了日"] > datetime.now()]
+    ongoing_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] > datetime.now()]
     st.dataframe(ongoing_data, use_container_width=True)
 
 with tab_completed:
     st.subheader("終了タブ: 継続が終了した契約")
-    completed_data = contracts[contracts["終了日"] <= datetime.now()]
+    completed_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] <= datetime.now()]
     st.dataframe(completed_data, use_container_width=True)
 
 # 엔지니어 정보 추가 폼
@@ -110,7 +109,6 @@ with st.sidebar.form("add_engineer_form"):
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": False,
         }])
-        st.session_state["contracts"] = pd.concat([contracts, new_row], ignore_index=True)
+        st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
         save_data(st.session_state["contracts"])
         st.success("エンジニア情報が追加されました。")
-        st.experimental_set_query_params(reload="true")  # 화면 새로고침
