@@ -116,18 +116,41 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": False,
         }])
 
-        # 세션 상태의 데이터프레임에 행 추가
+        # 세션 상태의 데이터프레임에 추가
         st.session_state["contracts"] = pd.concat(
             [st.session_state["contracts"], new_row], ignore_index=True
         )
 
         # 성공 메시지
         st.success("エンジニア情報を追加しました。")
+        st.rerun()
 
-# 데이터 테이블 표시
-st.subheader("現在の契約一覧")
-if not st.session_state["contracts"].empty:
-    st.dataframe(st.session_state["contracts"], use_container_width=True)
-else:
-    st.write("現在、データがありません。")
+# タブ表示
+tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
+
+# 最新タブ: CSV一覧を更新
+with tab_latest:
+    st.subheader("CSV一覧")
+    if not st.session_state["contracts"].empty:
+        st.dataframe(st.session_state["contracts"], use_container_width=True)
+    else:
+        st.write("現在、データがありません。")
+
+# 継続タブ
+with tab_ongoing:
+    st.subheader("継続タブ: 継続中の契約")
+    ongoing_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] > datetime.now()]
+    if not ongoing_data.empty:
+        st.dataframe(ongoing_data, use_container_width=True)
+    else:
+        st.write("現在継続中の契約はありません。")
+
+# 終了タブ
+with tab_completed:
+    st.subheader("終了タブ: 継続が終了した契約")
+    completed_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] <= datetime.now()]
+    if not completed_data.empty:
+        st.dataframe(completed_data, use_container_width=True)
+    else:
+        st.write("継続が終了した契約はありません。")
 
