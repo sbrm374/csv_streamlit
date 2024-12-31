@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # タイトル
 st.title("SES事業継続率管理ツール")
@@ -38,24 +38,24 @@ uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロード�
 if uploaded_file is not None:
     try:
         new_data = pd.read_csv(uploaded_file, encoding="shift_jis")
-        
+
         # 必要な列が存在するか確認
         required_columns = ["エンジニア名", "スキル", "顧客名", "開始日", "終了日"]
         if not all(col in new_data.columns for col in required_columns):
             st.error(f"CSVファイルには以下の列が必要です: {', '.join(required_columns)}")
             st.stop()
-        
+
         # 日付変換とエラーチェック
         new_data["開始日"] = pd.to_datetime(new_data["開始日"], format="%Y-%m-%d", errors="coerce")
         new_data["終了日"] = pd.to_datetime(new_data["終了日"], format="%Y-%m-%d", errors="coerce")
         if new_data["開始日"].isna().any() or new_data["終了日"].isna().any():
             st.error("日付が正しくありません。開始日と終了日はYYYY-MM-DD形式で入力してください。")
             st.stop()
-        
+
         # 継続日数の計算
         new_data["継続日数"] = (datetime.now() - new_data["開始日"]).dt.days
         new_data["アラート非表示"] = False
-        
+
         # セッションステートに保存
         st.session_state["contracts"] = new_data
     except Exception as e:
@@ -115,5 +115,11 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": False,
         }
         st.session_state["contracts"] = st.session_state["contracts"].append(new_row, ignore_index=True)
-        st.success("エンジニア情報を追加しました。")
+
+        # CSVファイルに保存
+        output_csv = st.session_state["contracts"].to_csv(index=False, encoding="shift_jis")
+        with open("updated_ses_data.csv", "wb") as f:
+            f.write(output_csv)
+
+        st.success("エンジニア情報を追加しました。CSVファイルが更新されました。")
         st.experimental_rerun()
