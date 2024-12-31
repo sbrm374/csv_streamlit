@@ -96,6 +96,9 @@ with tab_completed:
 
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
+if "rerun_flag" not in st.session_state:
+    st.session_state["rerun_flag"] = False
+
 with st.sidebar.form("add_engineer_form"):
     engineer_name = st.text_input("エンジニア名")
     skill = st.text_input("スキル")
@@ -115,7 +118,7 @@ with st.sidebar.form("add_engineer_form"):
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": False,
         }])
-        
+
         # 기존 DataFrame과 병합
         st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
 
@@ -124,6 +127,11 @@ with st.sidebar.form("add_engineer_form"):
         with open("updated_ses_data.csv", "wb") as f:
             f.write(output_csv)
 
-        st.success("エンジニア情報を追加しました。CSVファイルと表が更新されました。")
-        st.experimental_rerun()
+        # 새로고침 플래그 설정
+        st.session_state["rerun_flag"] = True
 
+# 상태 확인 후 새로고침
+if st.session_state["rerun_flag"]:
+    st.session_state["rerun_flag"] = False
+    st.experimental_set_query_params(updated="true")
+    st.success("エンジニア情報を追加しました。CSVファイルと表が更新されました。")
