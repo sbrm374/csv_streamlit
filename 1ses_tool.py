@@ -66,8 +66,9 @@ def plot_completion_rate(data, freq="M"):
         # 주기별 데이터 처리 (freq: "D"=일별, "M"=월별, "Y"=년도별)
         resampled_data = data.set_index("終了日").resample(freq).count()
         
-        # 현재 날짜까지 빈 데이터 추가
-        all_dates = pd.date_range(start=resampled_data.index.min(), end=datetime.now(), freq=freq)
+        # 3달 뒤까지 빈 데이터 추가
+        end_date = datetime.now() + timedelta(days=90)
+        all_dates = pd.date_range(start=resampled_data.index.min(), end=end_date, freq=freq)
         resampled_data = resampled_data.reindex(all_dates, fill_value=0)
 
         resampled_data["累計終了"] = resampled_data["エンジニア名"].cumsum()  # 종료 인원 누적
@@ -79,12 +80,19 @@ def plot_completion_rate(data, freq="M"):
         plt.step(resampled_data.index, resampled_data["完了率"], where="mid", label="完了率", linewidth=2)
 
         # X축과 Y축 설정
-        plt.xlim([resampled_data.index.min(), datetime.now() + timedelta(days=90)])  # X축: 기간
+        plt.xlim([resampled_data.index.min(), end_date])  # X축: 기간
         plt.ylim([0, 100])  # Y축: 완료율(%) 범위
+
+        # Y축 눈금 주기별 설정
+        if freq == "D":
+            plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
+        elif freq == "M":
+            plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
+        elif freq == "Y":
+            plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
 
         plt.title(f"完了率推移 ({freq})", fontsize=16, fontproperties=font_prop)
         plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
-        plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
         plt.xticks(rotation=45, fontproperties=font_prop)
         plt.yticks(fontproperties=font_prop)
         plt.grid(True)
