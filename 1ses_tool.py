@@ -60,8 +60,8 @@ def calculate_continuity_rate(data):
     data["継続率"] = (total - data["累計終了"]) / total * 100
     return data
 
-# 종료율 그래프
-def plot_continuity_rate(data, freq="M"):
+# 완료율 그래프
+def plot_completion_rate(data, freq="M"):
     if not data.empty:
         # 주기별 데이터 처리 (freq: "D"=일별, "M"=월별, "Y"=년도별)
         resampled_data = data.set_index("終了日").resample(freq).count()
@@ -70,20 +70,20 @@ def plot_continuity_rate(data, freq="M"):
             return
 
         resampled_data["累計終了"] = resampled_data["エンジニア名"].cumsum()  # 종료 인원 누적
-        total = len(st.session_state["contracts"])
-        resampled_data["継続中"] = total - resampled_data["累計終了"]  # 계약 중 인원
+        total = len(st.session_state["contracts"])  # 전체 인원
+        resampled_data["完了率"] = (resampled_data["累計終了"] / total) * 100  # 완료율 계산
 
         # 그래프 생성
         plt.figure(figsize=(10, 5))
-        plt.step(resampled_data.index, resampled_data["継続中"], where="mid", label="継続中の人数", linewidth=2)
+        plt.step(resampled_data.index, resampled_data["完了率"], where="mid", label="完了率", linewidth=2)
 
         # X축과 Y축 설정
         plt.xlim([resampled_data.index.min(), datetime.now() + timedelta(days=90)])  # X축: 기간
-        plt.ylim([0, total])  # Y축: 인원 수
+        plt.ylim([0, 100])  # Y축: 완료율(%) 범위
 
-        plt.title(f"継続率推移 ({freq})", fontsize=16, fontproperties=font_prop)
+        plt.title(f"完了率推移 ({freq})", fontsize=16, fontproperties=font_prop)
         plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
-        plt.ylabel("継続中の人数", fontsize=12, fontproperties=font_prop)
+        plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
         plt.xticks(rotation=45, fontproperties=font_prop)
         plt.yticks(fontproperties=font_prop)
         plt.grid(True)
@@ -95,7 +95,7 @@ def plot_continuity_rate(data, freq="M"):
         buf = io.BytesIO()
         plt.savefig(buf, format="png", dpi=300)
         buf.seek(0)
-        st.image(buf, caption=f"継続率推移 ({freq})", use_container_width=True)
+        st.image(buf, caption=f"完了率推移 ({freq})", use_container_width=True)
         buf.close()
 
 # タブ表示
@@ -134,19 +134,18 @@ with tab_completed:
     
 # 継続率グラフタブ
 with tab_rate:
-    st.subheader("継続率グラフ")
+    st.subheader("完了率グラフ")
     completed_data = st.session_state["contracts"][
         st.session_state["contracts"]["終了日"] <= datetime.now()
     ]
 
     if not completed_data.empty:
-        # 년도별, 월별, 일별 옵션
-        plot_continuity_rate(completed_data, freq="Y")  # 年別
-        plot_continuity_rate(completed_data, freq="M")  # 月別
-        plot_continuity_rate(completed_data, freq="D")  # 日別
+        # 완료율 그래프: 년도별, 월별, 일별 옵션
+        plot_completion_rate(completed_data, freq="Y")  # 年別
+        plot_completion_rate(completed_data, freq="M")  # 月別
+        plot_completion_rate(completed_data, freq="D")  # 日別
     else:
         st.write("現在終了した契約がありません。")
-
 
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
