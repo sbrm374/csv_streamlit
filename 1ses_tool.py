@@ -64,24 +64,28 @@ def calculate_continuity_rate(data):
 def plot_continuity_rate(data, freq="M"):
     if not data.empty:
         # 주기별 데이터 처리 (freq: "D"=일별, "M"=월별, "Y"=년도별)
-        data = data.set_index("終了日").resample(freq).count()
-        data["累計終了"] = data["エンジニア名"].cumsum()  # 종료 인원 누적
+        resampled_data = data.set_index("終了日").resample(freq).count()
+        if resampled_data.empty:
+            st.write(f"データが見つかりません: freq={freq}")
+            return
+
+        resampled_data["累計終了"] = resampled_data["エンジニア名"].cumsum()  # 종료 인원 누적
         total = len(st.session_state["contracts"])
-        data["継続率"] = (total - data["累計終了"]) / total * 100
+        resampled_data["継続中"] = total - resampled_data["累計終了"]  # 계약 중 인원
 
         # 그래프 생성
         plt.figure(figsize=(10, 5))
-        plt.step(data.index, total - data["累計終了"], where="mid", label="継続中の人数", linewidth=2)
+        plt.step(resampled_data.index, resampled_data["継続中"], where="mid", label="継続中の人数", linewidth=2)
 
-        # Y축 설정: 과거부터 3개월 후까지
-        min_date = data.index.min()
-        max_date = datetime.now() + timedelta(days=90)
-        plt.ylim([min_date, max_date])
+        # X축과 Y축 설정
+        plt.xlim([resampled_data.index.min(), datetime.now() + timedelta(days=90)])  # X축: 기간
+        plt.ylim([0, total])  # Y축: 인원 수
 
         plt.title(f"継続率推移 ({freq})", fontsize=16, fontproperties=font_prop)
         plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
-        plt.ylabel("終了日 (日付)", fontsize=12, fontproperties=font_prop)
+        plt.ylabel("継続中の人数", fontsize=12, fontproperties=font_prop)
         plt.xticks(rotation=45, fontproperties=font_prop)
+        plt.yticks(fontproperties=font_prop)
         plt.grid(True)
 
         # 범례 추가
@@ -127,15 +131,19 @@ with tab_completed:
         (st.session_state["contracts"]["アラート非表示"] == False)
     ]
     st.dataframe(completed_data, use_container_width=True)
-
+    
 # 継続率グラフタブ
 with tab_rate:
     st.subheader("継続率グラフ")
     completed_data = st.session_state["contracts"][
         st.session_state["contracts"]["終了日"] <= datetime.now()
     ]
+
     if not completed_data.empty:
-        plot_continuity_rate(completed_data)
+        # 년도별, 월별, 일별 옵션
+        plot_continuity_rate(completed_data, freq="Y")  # 年別
+        plot_continuity_rate(completed_data, freq="M")  # 月別
+        plot_continuity_rate(completed_data, freq="D")  # 日別
     else:
         st.write("現在終了した契約がありません。")
 
