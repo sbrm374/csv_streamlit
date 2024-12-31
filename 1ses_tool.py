@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from datetime import datetime
 
-# CSV 파일 저장용 변수
+# 업로드된 파일 경로 관리
 uploaded_file_path = None
 
 # 샘플 데이터 생성
@@ -17,7 +17,7 @@ sample_data = {
 
 # 샘플 CSV 생성
 sample_df = pd.DataFrame(sample_data)
-sample_csv = sample_df.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+sample_csv = sample_df.to_csv(index=False, encoding="utf-8").encode("utf-8")
 
 # Streamlit 앱 초기화
 st.title("SES事業継続率管理ツール")
@@ -33,13 +33,13 @@ st.sidebar.download_button(
 # CSV 업로드 처리
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 if uploaded_file is not None:
-    # 업로드된 파일 경로 저장
+    # 업로드된 파일을 로컬에 저장
     uploaded_file_path = f"uploaded_{uploaded_file.name}"
     with open(uploaded_file_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
     try:
         # 업로드된 CSV 읽기
-        st.session_state["contracts"] = pd.read_csv(uploaded_file_path, encoding="shift_jis")
+        st.session_state["contracts"] = pd.read_csv(uploaded_file_path, encoding="utf-8")
         st.success(f"アップロードしたファイル: {uploaded_file.name} を読み込みました。")
     except Exception as e:
         st.error(f"CSVファイルの読み込み中にエラーが発生しました: {e}")
@@ -54,7 +54,7 @@ if "contracts" not in st.session_state:
 st.subheader("現在の契約一覧")
 st.dataframe(st.session_state["contracts"], use_container_width=True)
 
-# 엔지니ア 정보 추가 폼
+# 엔지니어 정보 추가 폼
 st.sidebar.subheader("エンジニア情報を追加")
 with st.sidebar.form("add_engineer_form"):
     engineer_name = st.text_input("エンジニア名")
@@ -75,11 +75,11 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": False,
         }])
         st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
-        
-        # 업로드된 파일에 저장
+
+        # 로컬 파일에 저장
         if uploaded_file_path:
             try:
-                st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="shift_jis")
+                st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="utf-8")
                 st.success(f"新しいデータが {uploaded_file.name} に保存されました。")
             except Exception as e:
                 st.error(f"CSVファイルの保存中にエラーが発生しました: {e}")
