@@ -2,26 +2,25 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
-from matplotlib import rcParams
 import matplotlib.font_manager as fm
-import os
 import io
+import os
 
-# 폰트 설정 (한글 및 한자 깨짐 방지)
-font_path = "./fonts/NotoSansJP-Regular.otf"  # 폰트 경로
-
-st.write("Font file exists:", os.path.exists(font_path)) 
+# 폰트 설정
+font_path = "./fonts/NotoSansJP-Regular.otf"
 font_prop = fm.FontProperties(fname=font_path)
-plt.rcParams['font.family'] = font_prop.get_name()  # 폰트 이름 설정
-
-st.write("Loaded font name:", font_prop.get_name())
-st.write("Current font family:", rcParams['font.family'])
+plt.rcParams['font.family'] = font_prop.get_name()
 plt.rcParams['axes.unicode_minus'] = False  # 음수 기호 깨짐 방지
+
+# 디버깅 정보 출력
+st.write("Font file exists:", os.path.exists(font_path)) 
+st.write("Loaded font name:", font_prop.get_name())
+st.write("Current font family:", plt.rcParams['font.family'])
 
 # タイトル
 st.title("SES事業継続率管理ツール")
 
-# サンプルCSVデータ
+# 샘플 데이터
 sample_data = {
     "エンジニア名": ["山田太郎", "佐藤花子", "鈴木一郎", "田中次郎"],
     "スキル": ["Python, AWS", "Java, Spring", "React, JavaScript", "C#, .NET"],
@@ -46,11 +45,10 @@ if "contracts" not in st.session_state:
 
 # 지속률 계산 함수
 def calculate_continuity_rate(data):
-    # 종료일 기준으로 정렬
     data = data.sort_values("終了日")
     total = len(data)
-    data["累計終了"] = range(1, total + 1)  # 종료된 인원 누적 합
-    data["継続率"] = (total - data["累計終了"]) / total * 100  # 지속률 계산
+    data["累計終了"] = range(1, total + 1)
+    data["継続率"] = (total - data["累計終了"]) / total * 100
     return data
 
 # 종료율 그래프
@@ -65,11 +63,11 @@ def plot_continuity_rate(data):
         plt.xticks(rotation=45)
         plt.grid(True)
 
-        # 그래프를 버퍼에 저장
+        # 그래프를 버퍼에 저장 후 Streamlit에 출력
         buf = io.BytesIO()
-        plt.savefig(buf, format="png")
+        plt.savefig(buf, format="png", dpi=300)
         buf.seek(0)
-        st.image(buf, caption="継続率推移 グラフ", use_column_width=True)
+        st.image(buf, caption="継続率推移 グラフ", use_container_width=True)
         buf.close()
 
 # タブ表示
@@ -116,6 +114,7 @@ with tab_rate:
         plot_continuity_rate(completed_data)
     else:
         st.write("現在終了した契約がありません。")
+
 
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
