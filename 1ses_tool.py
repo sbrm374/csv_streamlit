@@ -71,7 +71,7 @@ if uploaded_file is not None:
 
             # 기존 데이터 초기화 후 새 데이터 저장
             st.session_state["contracts"] = new_data
-            save_data(st.session_state["contracts"])
+            save_data(st.session_state["contracts"])  # CSV 파일 저장
             st.success("新しいCSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"CSV読み込み中にエラーが発生しました: {e}")
@@ -114,5 +114,5 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": False,
         }])
         st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
-        save_data(st.session_state["contracts"])
+        save_data(st.session_state["contracts"])  # CSV 파일 저장
         st.success("エンジニア情報が追加されました。")
