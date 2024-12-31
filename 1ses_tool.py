@@ -60,8 +60,8 @@ def calculate_continuity_rate(data):
     data["継続率"] = (total - data["累計終了"]) / total * 100
     return data
 
-# 완료율 계산 및 그래프 생성
-def plot_completion_rate(data, freq="D"):
+# 완료율 그래프 + 슬라이더로 X축 스크롤 구현
+def plot_completion_rate_with_slider(data, freq="D"):
     if data.empty:
         st.write("データがありません。")
         return
@@ -78,15 +78,11 @@ def plot_completion_rate(data, freq="D"):
     completion_rates = []
 
     for current_date in completion_data.index:
-        # 해당 날짜에 시작된 계약 추가
         started_today = len(data[data["開始日"] == current_date])
         total_contracts += started_today
-
-        # 해당 날짜에 완료된 계약 제거
         completed_today = len(data[data["終了日"] == current_date])
         completed_contracts += completed_today
 
-        # 완료율 계산
         if total_contracts > 0:
             completion_rate = (completed_contracts / total_contracts) * 100
         else:
@@ -94,16 +90,24 @@ def plot_completion_rate(data, freq="D"):
 
         completion_rates.append(completion_rate)
 
-    # 완료율 데이터프레임 생성
     completion_data["完了率"] = completion_rates
+
+    # 날짜 범위를 슬라이더로 설정
+    min_date = completion_data.index.min()
+    max_date = completion_data.index.max()
+    selected_range = st.slider(
+        "表示期間を選択してください。",
+        min_value=min_date,
+        max_value=max_date,
+        value=(min_date, min_date + timedelta(days=30)),
+    )
+
+    # 선택된 범위로 필터링
+    filtered_data = completion_data.loc[selected_range[0]:selected_range[1]]
 
     # 그래프 생성
     plt.figure(figsize=(10, 5))
-    plt.step(completion_data.index, completion_data["完了率"], where="mid", label="完了率", linewidth=2)
-
-    # X축과 Y축 설정
-    plt.xlim([completion_data.index.min(), end_date])  # X축: 기간
-    plt.ylim([0, 100])  # Y축: 완료율(%) 범위
+    plt.step(filtered_data.index, filtered_data["完了率"], where="mid", label="完了率", linewidth=2)
 
     plt.title("完了率推移", fontsize=16, fontproperties=font_prop)
     plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
@@ -119,9 +123,8 @@ def plot_completion_rate(data, freq="D"):
     buf = io.BytesIO()
     plt.savefig(buf, format="png", dpi=300)
     buf.seek(0)
-    st.image(buf, caption="完了率推移", use_container_width=True)
+    st.image(buf, caption="完了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
-
 # タブ表示
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
     ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "継続率グラフ"]
