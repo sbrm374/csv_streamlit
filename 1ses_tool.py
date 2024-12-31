@@ -74,4 +74,4 @@ with st.sidebar.form("add_engineer_form"):
 
         # 성공 메시지
         st.success("エンジニア情報を追加しました。")
-        st.experimental_rerun()
+        st.rerun()
