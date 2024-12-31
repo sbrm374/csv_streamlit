@@ -91,7 +91,7 @@ def plot_completion_rate_with_slider(data, freq="D"):
 
         completion_rates.append(completion_rate)
 
-    completion_data["終了率"] = completion_rates
+    completion_data["完了率"] = completion_rates
 
     # 날짜 범위를 슬라이더로 설정 (Timestamp → datetime.date 변환)
     min_date = completion_data.index.min().date()
@@ -111,11 +111,11 @@ def plot_completion_rate_with_slider(data, freq="D"):
 
     # 그래프 생성
     plt.figure(figsize=(10, 5))
-    plt.step(filtered_data.index, filtered_data["終了率"], where="mid", label="終了率", linewidth=2)
+    plt.step(filtered_data.index, filtered_data["完了率"], where="mid", label="完了率", linewidth=2)
 
-    plt.title("終了率推移", fontsize=16, fontproperties=font_prop)
+    plt.title("完了率推移", fontsize=16, fontproperties=font_prop)
     plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
-    plt.ylabel("終了率 (%)", fontsize=12, fontproperties=font_prop)
+    plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
     plt.xticks(rotation=45, fontproperties=font_prop)
     plt.yticks(fontproperties=font_prop)
     plt.grid(True)
@@ -127,7 +127,7 @@ def plot_completion_rate_with_slider(data, freq="D"):
     buf = io.BytesIO()
     plt.savefig(buf, format="png", dpi=300)
     buf.seek(0)
-    st.image(buf, caption="終了率推移 (スライダーで期間選択)", use_container_width=True)
+    st.image(buf, caption="完了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
 
 
