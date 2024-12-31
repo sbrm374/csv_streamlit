@@ -68,9 +68,11 @@ if uploaded_file is not None:
             new_data["終了日"] = pd.to_datetime(new_data["終了日"], errors="coerce")
             new_data["継続日数"] = (datetime.now() - new_data["開始日"]).dt.days
             new_data["アラート非表示"] = False
-            st.session_state["contracts"] = pd.concat([contracts, new_data], ignore_index=True)
+
+            # 기존 데이터 초기화 후 새 데이터 저장
+            st.session_state["contracts"] = new_data
             save_data(st.session_state["contracts"])
-            st.success("CSVファイルがアップロードされ、データが追加されました。")
+            st.success("新しいCSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"CSV読み込み中にエラーが発生しました: {e}")
 
