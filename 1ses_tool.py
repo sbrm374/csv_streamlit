@@ -124,5 +124,7 @@ with st.sidebar.form("add_engineer_form"):
         with open("updated_ses_data.csv", "wb") as f:  # 'wb' 모드로 파일 열기
             f.write(output_csv)
                 
+        st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
+
         st.success("エンジニア情報を追加しました。CSVファイルが更新されました。")
         st.rerun()
