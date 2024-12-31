@@ -134,7 +134,7 @@ def plot_completion_rate_with_slider(data, freq="D"):
     
 # タブ表示
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
-    ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "継続率グラフ"]
+    ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "終了率グラフ"]
 )
 
 # 全体タブ (모든 데이터를 보여줌)
@@ -167,9 +167,9 @@ with tab_completed:
     st.dataframe(completed_data, use_container_width=True)
     
 
-# 完了率グラフタブ
+# 終了率グラフタブ
 with tab_rate:
-    st.subheader("完了率グラフ (スライダー付き)")
+    st.subheader("終了率グラフ (スライダー付き)")
     contracts_data = st.session_state["contracts"]
 
     if not contracts_data.empty:
