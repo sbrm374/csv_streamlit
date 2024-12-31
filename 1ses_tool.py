@@ -3,8 +3,8 @@ import pandas as pd
 import os
 from datetime import datetime
 
-# CSV 파일 경로
-CSV_FILE_PATH = "updated_ses_data.csv"
+# CSV 파일 저장용 변수
+uploaded_file_path = None
 
 # 샘플 데이터 생성
 sample_data = {
@@ -19,33 +19,6 @@ sample_data = {
 sample_df = pd.DataFrame(sample_data)
 sample_csv = sample_df.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
 
-# CSV 데이터 로드 함수
-def load_data():
-    if os.path.exists(CSV_FILE_PATH):
-        try:
-            data = pd.read_csv(CSV_FILE_PATH, encoding="shift_jis")
-            # 날짜 열 형식 변환
-            data["開始日"] = pd.to_datetime(data["開始日"], errors="coerce")
-            data["終了日"] = pd.to_datetime(data["終了日"], errors="coerce")
-            return data
-        except Exception as e:
-            st.error(f"CSVファイルの読み込み中にエラーが発生しました: {e}")
-            return pd.DataFrame(
-                columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
-            )
-    else:
-        return pd.DataFrame(
-            columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
-        )
-
-# CSV 데이터 저장 함수
-def save_data(dataframe):
-    try:
-        dataframe.to_csv(CSV_FILE_PATH, index=False, encoding="shift_jis")
-        st.success("CSVファイルに保存されました。")
-    except Exception as e:
-        st.error(f"CSVファイルの保存中にエラーが発生しました: {e}")
-
 # Streamlit 앱 초기화
 st.title("SES事業継続率管理ツール")
 
@@ -57,33 +30,25 @@ st.sidebar.download_button(
     mime="text/csv",
 )
 
-# 데이터 로드
-if "contracts" not in st.session_state:
-    st.session_state["contracts"] = load_data()
-
-# 현재 상태 데이터
-contracts = st.session_state["contracts"]
-
 # CSV 업로드 처리
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 if uploaded_file is not None:
+    # 업로드된 파일 경로 저장
+    uploaded_file_path = f"uploaded_{uploaded_file.name}"
+    with open(uploaded_file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
     try:
-        new_data = pd.read_csv(uploaded_file, encoding="shift_jis")
-        required_columns = ["エンジニア名", "スキル", "顧客名", "開始日", "終了日"]
-        if not all(col in new_data.columns for col in required_columns):
-            st.error(f"CSVファイルには以下の列が必要です: {', '.join(required_columns)}")
-        else:
-            # 날짜 변환 및 검증
-            new_data["開始日"] = pd.to_datetime(new_data["開始日"], errors="coerce")
-            new_data["終了日"] = pd.to_datetime(new_data["終了日"], errors="coerce")
-            new_data["継続日数"] = (datetime.now() - new_data["開始日"]).dt.days
-            new_data["アラート非表示"] = False
-
-            # 기존 데이터 초기화 후 새 데이터 저장
-            st.session_state["contracts"] = new_data
-            save_data(st.session_state["contracts"])
+        # 업로드된 CSV 읽기
+        st.session_state["contracts"] = pd.read_csv(uploaded_file_path, encoding="shift_jis")
+        st.success(f"アップロードしたファイル: {uploaded_file.name} を読み込みました。")
     except Exception as e:
-        st.error(f"CSV読み込み中にエラーが発生しました: {e}")
+        st.error(f"CSVファイルの読み込み中にエラーが発生しました: {e}")
+
+# 데이터 로드 (업로드된 파일이 없는 경우 초기화)
+if "contracts" not in st.session_state:
+    st.session_state["contracts"] = pd.DataFrame(
+        columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
+    )
 
 # 데이터 표시
 st.subheader("現在の契約一覧")
@@ -110,5 +75,13 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": False,
         }])
         st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
-        save_data(st.session_state["contracts"])  # CSV 파일 저장
-        st.success("エンジニア情報が追加され、CSVファイルに保存されました。")
+        
+        # 업로드된 파일에 저장
+        if uploaded_file_path:
+            try:
+                st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="shift_jis")
+                st.success(f"新しいデータが {uploaded_file.name} に保存されました。")
+            except Exception as e:
+                st.error(f"CSVファイルの保存中にエラーが発生しました: {e}")
+        else:
+            st.error("アップロードしたCSVファイルが見つかりません。")
