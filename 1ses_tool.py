@@ -6,11 +6,9 @@ from matplotlib import rcParams
 import matplotlib.font_manager as fm
 
 # 폰트 설정 (한글 및 한자 깨짐 방지)
-font_path = "./fonts/NotoSansJP-VariableFont_wght.ttf"
-font_prop = fm.FontProperties(fname=font_path, weight='regular')
-
+font_path = "./fonts/NotoSansJP-Regular.otf"
+font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()
-plt.rcParams['axes.unicode_minus'] = False
 
 # タイトル
 st.title("SES事業継続率管理ツール")
