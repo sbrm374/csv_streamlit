@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # タイトル
 st.title("SES事業継続率管理ツール")
@@ -62,24 +61,21 @@ if uploaded_file is not None:
         st.error(f"CSVの読み込み中にエラーが発生しました: {e}")
         st.stop()
 
-# データフレーム取得
-contracts = st.session_state["contracts"]
-
 # タブ表示
 tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
 
 # 最新タブ
 with tab_latest:
     st.subheader("最新タブ: CSV一覧")
-    if not contracts.empty:
-        st.dataframe(contracts, use_container_width=True)
+    if not st.session_state["contracts"].empty:
+        st.dataframe(st.session_state["contracts"], use_container_width=True)
     else:
-        st.write("CSVデータがアップロードされていません。")
+        st.write("現在、データがありません。")
 
 # 継続タブ
 with tab_ongoing:
     st.subheader("継続タブ: 継続中の契約")
-    ongoing_data = contracts[contracts["終了日"] > datetime.now()]
+    ongoing_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] > datetime.now()]
     if not ongoing_data.empty:
         st.dataframe(ongoing_data, use_container_width=True)
     else:
@@ -88,7 +84,7 @@ with tab_ongoing:
 # 終了タブ
 with tab_completed:
     st.subheader("終了タブ: 継続が終了した契約")
-    completed_data = contracts[contracts["終了日"] <= datetime.now()]
+    completed_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] <= datetime.now()]
     if not completed_data.empty:
         st.dataframe(completed_data, use_container_width=True)
     else:
@@ -123,34 +119,5 @@ with st.sidebar.form("add_engineer_form"):
 
         # 성공 메시지
         st.success("エンジニア情報を追加しました。")
-        st.rerun()  # 스크립트 재실행으로 업데이트 반영
+        st.rerun()
 
-# タブ表示
-tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
-
-# 最新タブ
-with tab_latest:
-    st.subheader("最新タブ: CSV一覧")
-    if not st.session_state["contracts"].empty:
-        # 세션 상태의 테이블 업데이트
-        st.dataframe(st.session_state["contracts"], use_container_width=True)
-    else:
-        st.write("現在、データがありません。")
-
-# 継続タブ
-with tab_ongoing:
-    st.subheader("継続タブ: 継続中の契約")
-    ongoing_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] > datetime.now()]
-    if not ongoing_data.empty:
-        st.dataframe(ongoing_data, use_container_width=True)
-    else:
-        st.write("現在継続中の契約はありません。")
-
-# 終了タブ
-with tab_completed:
-    st.subheader("終了タブ: 継続が終了した契約")
-    completed_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] <= datetime.now()]
-    if not completed_data.empty:
-        st.dataframe(completed_data, use_container_width=True)
-    else:
-        st.write("継続が終了した契約はありません。")
