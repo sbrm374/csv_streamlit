@@ -52,23 +52,49 @@ def calculate_continuity_rate(data):
     return data
 
 # 종료율 그래프
-def plot_continuity_rate(data):
+def plot_continuity_rate(data, freq="M"):
     if not data.empty:
-        data = calculate_continuity_rate(data)
+        # 주기별 데이터 처리 (freq: "D"=일별, "M"=월별, "Y"=년도별)
+        data = data.set_index("終了日").resample(freq).count()
+        data["累計終了"] = data["エンジニア名"].cumsum()  # 종료 인원 누적
+        total = len(st.session_state["contracts"])
+        data["継続率"] = (total - data["累計終了"]) / total * 100
+
+        # 그래프 생성
         plt.figure(figsize=(10, 5))
-        plt.plot(data["終了日"], data["継続率"], marker="o")
-        plt.title("継続率推移", fontsize=16, fontproperties=font_prop)
-        plt.xlabel("終了日", fontsize=12, fontproperties=font_prop)
+        plt.plot(data.index, data["継続率"], marker="o")
+        
+        # 텍스트 설정
+        freq_label = {"D": "日別", "M": "月別", "Y": "年別"}[freq]
+        plt.title(f"継続率推移 ({freq_label})", fontsize=16, fontproperties=font_prop)
+        plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
         plt.ylabel("継続率 (%)", fontsize=12, fontproperties=font_prop)
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=45, fontproperties=font_prop)
+        plt.yticks(fontproperties=font_prop)
         plt.grid(True)
 
         # 그래프를 버퍼에 저장 후 Streamlit에 출력
         buf = io.BytesIO()
         plt.savefig(buf, format="png", dpi=300)
         buf.seek(0)
-        st.image(buf, caption="継続率推移 グラフ", use_container_width=True)
+        st.image(buf, caption=f"継続率推移 ({freq_label})", use_container_width=True)
         buf.close()
+
+# 継続率グラフタブ
+with tab_rate:
+    st.subheader("継続率グラフ")
+    completed_data = st.session_state["contracts"][
+        st.session_state["contracts"]["終了日"] <= datetime.now()
+    ]
+
+    if not completed_data.empty:
+        # 년도별, 월별, 일별 옵션
+        plot_continuity_rate(completed_data, freq="Y")  # 年別
+        plot_continuity_rate(completed_data, freq="M")  # 月別
+        plot_continuity_rate(completed_data, freq="D")  # 日別
+    else:
+        st.write("現在終了した契約がありません。")
+
 
 # タブ表示
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
