@@ -125,4 +125,4 @@ with st.sidebar.form("add_engineer_form"):
             f.write(output_csv)
                 
         st.success("エンジニア情報を追加しました。CSVファイルが更新されました。")
-        st.experimental_rerun()
+        st.rerun()
