@@ -5,8 +5,8 @@ from datetime import datetime
 from matplotlib import rcParams
 
 # 폰트 설정 (한글 및 한자 깨짐 방지)
-rcParams['font.family'] = 'AppleGothic'  # MacOS의 경우
-# rcParams['font.family'] = 'Malgun Gothic'  # Windows의 경우
+# rcParams['font.family'] = 'AppleGothic'  # MacOS의 경우
+rcParams['font.family'] = 'Malgun Gothic'  # Windows의 경우
 # rcParams['font.family'] = 'NanumGothic'  # Linux의 경우
 rcParams['axes.unicode_minus'] = False  # 음수 기호 깨짐 방지
 
