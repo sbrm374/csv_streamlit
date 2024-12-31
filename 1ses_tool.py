@@ -66,12 +66,12 @@ with st.sidebar.form("add_engineer_form"):
         try:
             st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="utf-8")
             st.success(f"新しいデータが {uploaded_file_path} に保存されました。")
-            
-            # 파일 내용 확인
+
+            # 파일 확인
             if os.path.exists(uploaded_file_path):
                 with open(uploaded_file_path, "r", encoding="utf-8") as f:
-                    content = f.read()
-                    st.text_area("保存されたCSVの内容を確認", content, height=200)
+                    saved_content = f.read()
+                    st.text_area("保存されたCSVの内容を確認", saved_content, height=200)
             else:
                 st.error(f"保存されたファイルが見つかりません: {uploaded_file_path}")
 
