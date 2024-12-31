@@ -80,22 +80,6 @@ def plot_continuity_rate(data, freq="M"):
         st.image(buf, caption=f"継続率推移 ({freq_label})", use_container_width=True)
         buf.close()
 
-# 継続率グラフタブ
-with tab_rate:
-    st.subheader("継続率グラフ")
-    completed_data = st.session_state["contracts"][
-        st.session_state["contracts"]["終了日"] <= datetime.now()
-    ]
-
-    if not completed_data.empty:
-        # 년도별, 월별, 일별 옵션
-        plot_continuity_rate(completed_data, freq="Y")  # 年別
-        plot_continuity_rate(completed_data, freq="M")  # 月別
-        plot_continuity_rate(completed_data, freq="D")  # 日別
-    else:
-        st.write("現在終了した契約がありません。")
-
-
 # タブ表示
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
     ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "継続率グラフ"]
@@ -136,8 +120,12 @@ with tab_rate:
     completed_data = st.session_state["contracts"][
         st.session_state["contracts"]["終了日"] <= datetime.now()
     ]
+
     if not completed_data.empty:
-        plot_continuity_rate(completed_data)
+        # 년도별, 월별, 일별 옵션
+        plot_continuity_rate(completed_data, freq="Y")  # 年別
+        plot_continuity_rate(completed_data, freq="M")  # 月別
+        plot_continuity_rate(completed_data, freq="D")  # 日別
     else:
         st.write("現在終了した契約がありません。")
 
