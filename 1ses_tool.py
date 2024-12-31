@@ -133,5 +133,6 @@ with st.sidebar.form("add_engineer_form"):
 # 상태 확인 후 새로고침
 if st.session_state["rerun_flag"]:
     st.session_state["rerun_flag"] = False
-    st.experimental_set_query_params(updated="true")
+    st.query_params = {"updated": "true"}  # Updated query parameters
     st.success("エンジニア情報を追加しました。CSVファイルと表が更新されました。")
+
