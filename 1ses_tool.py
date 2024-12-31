@@ -6,6 +6,7 @@ from datetime import timedelta
 import matplotlib.font_manager as fm
 import io
 import os
+import plotly.express as px
 
 # 폰트 설정
 font_path = "./fonts/NotoSansJP-Regular.otf"
