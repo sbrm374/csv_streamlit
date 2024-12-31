@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from matplotlib import rcParams
 import matplotlib.font_manager as fm
+import os
+st.write("Font file exists:", os.path.exists(font_path)) 
 
 # 폰트 설정 (한글 및 한자 깨짐 방지)
 font_path = "./fonts/NotoSansJP-Regular.otf"  # 폰트 경로
