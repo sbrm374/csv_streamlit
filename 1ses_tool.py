@@ -67,7 +67,7 @@ with st.sidebar.form("add_engineer_form"):
             "開始日": pd.to_datetime(start_date),
             "終了日": pd.to_datetime(end_date),
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
-            "アラート非表示": False,
+            "アラート非表示": True,
         }
 
         # 세션 상태의 데이터프레임에 행 추가
