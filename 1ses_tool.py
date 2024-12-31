@@ -9,7 +9,7 @@ UPLOAD_DIR = os.path.join(BASE_DIR, "uploaded_files")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Streamlit 앱 초기화
-st.title("SES事業継続率管理ツール1")
+st.title("SES事業継続率管理ツール")
 
 # CSV 업로드 처리
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
@@ -33,7 +33,7 @@ if "contracts" not in st.session_state:
         columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
     )
 
-# 현재 CSV 데이터 표시
+# 데이터 표시 (업데이트된 데이터 포함)
 st.subheader("現在の契約一覧")
 st.dataframe(st.session_state["contracts"], use_container_width=True)
 
@@ -65,8 +65,3 @@ with st.sidebar.form("add_engineer_form"):
         # CSV 파일 저장
         st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="utf-8")
         st.success(f"新しいデータが {uploaded_file_path} に保存されました。")
-
-        # 업데이트된 데이터 다시 읽기 및 표시
-        updated_df = pd.read_csv(uploaded_file_path, encoding="utf-8")
-        st.subheader("更新されたCSVファイル")
-        st.dataframe(updated_df, use_container_width=True)
