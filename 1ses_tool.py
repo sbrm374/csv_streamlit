@@ -52,18 +52,24 @@ def calculate_continuity_rate(data):
     data["継続率"] = (total - data["累計終了"]) / total * 100  # 지속률 계산
     return data
 
-# 終了タブ 종료율 그래프
+# 종료율 그래프
 def plot_continuity_rate(data):
     if not data.empty:
         data = calculate_continuity_rate(data)
         plt.figure(figsize=(10, 5))
         plt.plot(data["終了日"], data["継続率"], marker="o")
-        plt.title("継続率推移", fontsize=16)
+        plt.title("継続率推移", fontsize=16)  # 일본어 텍스트
         plt.xlabel("終了日", fontsize=12)
         plt.ylabel("継続率 (%)", fontsize=12)
         plt.xticks(rotation=45)
         plt.grid(True)
-        st.pyplot(plt)
+
+        # 그래프를 버퍼에 저장
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+        st.image(buf, caption="継続率推移 グラフ", use_column_width=True)
+        buf.close()
 
 # タブ表示
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
