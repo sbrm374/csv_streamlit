@@ -33,7 +33,7 @@ if "contracts" not in st.session_state:
         columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
     )
 
-# 데이터 표시 (업데이트된 데이터 포함)
+# 데이터 표시
 st.subheader("現在の契約一覧")
 st.dataframe(st.session_state["contracts"], use_container_width=True)
 
@@ -63,5 +63,17 @@ with st.sidebar.form("add_engineer_form"):
         st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
 
         # CSV 파일 저장
-        st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="utf-8")
-        st.success(f"新しいデータが {uploaded_file_path} に保存されました。")
+        try:
+            st.session_state["contracts"].to_csv(uploaded_file_path, index=False, encoding="utf-8")
+            st.success(f"新しいデータが {uploaded_file_path} に保存されました。")
+            
+            # 파일 내용 확인
+            if os.path.exists(uploaded_file_path):
+                with open(uploaded_file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    st.text_area("保存されたCSVの内容を確認", content, height=200)
+            else:
+                st.error(f"保存されたファイルが見つかりません: {uploaded_file_path}")
+
+        except Exception as e:
+            st.error(f"CSVファイルの保存中にエラーが発生しました: {e}")
