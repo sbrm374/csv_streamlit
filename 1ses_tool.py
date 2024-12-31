@@ -57,9 +57,9 @@ def plot_continuity_rate(data):
         data = calculate_continuity_rate(data)
         plt.figure(figsize=(10, 5))
         plt.plot(data["終了日"], data["継続率"], marker="o")
-        plt.title("継続率推移", fontsize=16)  # 일본어 텍스트
-        plt.xlabel("終了日", fontsize=12)
-        plt.ylabel("継続率 (%)", fontsize=12)
+        plt.title("継続率推移", fontsize=16, fontproperties=font_prop)
+        plt.xlabel("終了日", fontsize=12, fontproperties=font_prop)
+        plt.ylabel("継続率 (%)", fontsize=12, fontproperties=font_prop)
         plt.xticks(rotation=45)
         plt.grid(True)
 
