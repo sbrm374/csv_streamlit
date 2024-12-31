@@ -29,23 +29,35 @@ if "contracts" not in st.session_state:
     )
 
 # タブ表示
-tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
+tab_all, tab_latest, tab_ongoing, tab_completed = st.tabs(["全体タブ", "最新タブ", "継続タブ", "終了タブ"])
 
-# 最新タブ
-with tab_latest:
-    st.subheader("最新タブ: CSV一覧")
+# 全体タブ (알림 비표시 포함 모든 데이터를 보여줌)
+with tab_all:
+    st.subheader("全体タブ: 全ての契約")
     st.dataframe(st.session_state["contracts"], use_container_width=True)
+
+# 最新タブ (알림 비표시 제외한 데이터만 표시)
+with tab_latest:
+    st.subheader("最新タブ: アラート表示中の契約")
+    latest_data = st.session_state["contracts"][st.session_state["contracts"]["アラート非表示"] == False]
+    st.dataframe(latest_data, use_container_width=True)
 
 # 継続タブ
 with tab_ongoing:
     st.subheader("継続タブ: 継続中の契約")
-    ongoing_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] > datetime.now()]
+    ongoing_data = st.session_state["contracts"][
+        (st.session_state["contracts"]["終了日"] > datetime.now()) &
+        (st.session_state["contracts"]["アラート非表示"] == False)
+    ]
     st.dataframe(ongoing_data, use_container_width=True)
 
 # 終了タブ
 with tab_completed:
     st.subheader("終了タブ: 継続が終了した契約")
-    completed_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] <= datetime.now()]
+    completed_data = st.session_state["contracts"][
+        (st.session_state["contracts"]["終了日"] <= datetime.now()) &
+        (st.session_state["contracts"]["アラート非表示"] == False)
+    ]
     st.dataframe(completed_data, use_container_width=True)
 
 # エンジニア情報追加フォーム
@@ -56,6 +68,7 @@ with st.sidebar.form("add_engineer_form"):
     client_name = st.text_input("顧客名")
     start_date = st.date_input("開始日")
     end_date = st.date_input("終了日")
+    alert_hidden = st.checkbox("アラート非表示", value=False)
     submitted = st.form_submit_button("追加")
 
     if submitted:
@@ -67,7 +80,7 @@ with st.sidebar.form("add_engineer_form"):
             "開始日": pd.to_datetime(start_date),
             "終了日": pd.to_datetime(end_date),
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
-            "アラート非表示": True,
+            "アラート非表示": alert_hidden,
         }
 
         # 세션 상태의 데이터프레임에 행 추가
@@ -77,4 +90,4 @@ with st.sidebar.form("add_engineer_form"):
 
         # 성공 메시지
         st.success("エンジニア情報を追加しました。")
-        st.rerun()
+        st.experimental_rerun()
