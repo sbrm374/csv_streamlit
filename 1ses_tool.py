@@ -118,11 +118,11 @@ with st.sidebar.form("add_engineer_form"):
         
         # 기존 DataFrame과 새 데이터를 병합
         st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
-        
+
         # CSV 파일에 저장
-        output_csv = st.session_state["contracts"].to_csv(index=False, encoding="shift_jis")
-        with open("updated_ses_data.csv", "wb") as f:
+        output_csv = st.session_state["contracts"].to_csv(index=False, encoding="shift_jis").encode("shift_jis")  # 데이터를 바이트 형식으로 변환
+        with open("updated_ses_data.csv", "wb") as f:  # 'wb' 모드로 파일 열기
             f.write(output_csv)
-        
+                
         st.success("エンジニア情報を追加しました。CSVファイルが更新されました。")
         st.experimental_rerun()
