@@ -1,53 +1,51 @@
 import streamlit as st
 import pandas as pd
 import os
-from datetime import datetime
 
-# 파일 저장 디렉토리 설정
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_DIR = os.path.join(BASE_DIR, "uploaded_files")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# CSV 파일 경로 설정 (실제 파일 경로를 지정해야 합니다)
+csv_file_path = "data.csv"
 
-# Streamlit 앱 초기화
-st.title("CSVファイル編集ツール")
+st.title("CSV 파일 업데이트 📝")
 
-# CSV 파일 업로드
-uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
-if uploaded_file is not None:
-    # 업로드된 파일 로컬에 저장
-    uploaded_file_path = os.path.join(UPLOAD_DIR, uploaded_file.name)
-    with open(uploaded_file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+# CSV 파일 존재 여부 확인
+if os.path.exists(csv_file_path):
+    df = pd.read_csv(csv_file_path)
+    st.write("📄 현재 CSV 파일 내용:")
+    st.dataframe(df)
+else:
+    st.warning(f"'{csv_file_path}' 파일이 존재하지 않습니다.")
+    df = pd.DataFrame()  # 빈 DataFrame 생성
 
-    try:
-        # CSV 파일 읽기
-        df = pd.read_csv(uploaded_file_path, encoding="utf-8")
-        st.subheader("アップロードしたCSVファイル")
+# 새 행 추가 폼
+st.write("📝 새 행 추가")
+new_row = {}
+if not df.empty:
+    for column in df.columns:
+        new_row[column] = st.text_input(f"새로운 {column} 값 입력:", key=column)
+else:
+    st.info("새로운 열 이름들을 입력하세요.")
+    columns = st.text_input("열 이름 (쉼표로 구분):")
+    if columns:
+        df = pd.DataFrame(columns=[col.strip() for col in columns.split(",")])
+
+if st.button("새 행 추가"):
+    if new_row:
+        df = df.append(new_row, ignore_index=True)
+        st.success("새 행이 추가되었습니다!")
         st.dataframe(df)
 
-        # 새로운 행 추가 폼
-        st.sidebar.subheader("新しい行を追加")
-        with st.sidebar.form("add_row_form"):
-            new_row = {}
-            for col in df.columns:
-                new_row[col] = st.text_input(f"{col} 値", value="")
-            submitted = st.form_submit_button("追加")
+        # CSV 파일에 저장
+        df.to_csv(csv_file_path, index=False)
+        st.success(f"내용이 '{csv_file_path}'에 저장되었습니다!")
+    else:
+        st.warning("모든 열에 값을 입력해주세요.")
 
-            if submitted:
-                # 새로운 행 추가
-                new_row_df = pd.DataFrame([new_row])
-                df = pd.concat([df, new_row_df], ignore_index=True)
-
-                # CSV 파일 업데이트
-                df.to_csv(uploaded_file_path, index=False, encoding="utf-8")
-                st.success("新しい行がCSVファイルに追加されました。")
-
-                # 업데이트된 파일 읽기 및 표시
-                updated_df = pd.read_csv(uploaded_file_path, encoding="utf-8")
-                st.subheader("更新されたCSVファイル")
-                st.dataframe(updated_df)
-
-    except Exception as e:
-        st.error(f"CSVファイルの処理中にエラーが発生しました: {e}")
-else:
-    st.info("CSVファイルをアップロードしてください。")
+# CSV 파일 저장 버튼
+if st.button("CSV 파일 다운로드"):
+    csv = df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="💾 수정된 파일 다운로드",
+        data=csv,
+        file_name="updated_file.csv",
+        mime="text/csv",
+    )
