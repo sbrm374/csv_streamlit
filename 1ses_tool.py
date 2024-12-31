@@ -60,39 +60,41 @@ def calculate_continuity_rate(data):
     data["継続率"] = (total - data["累計終了"]) / total * 100
     return data
 
-# 완료율 그래프
+# 완료율 계산 및 그래프 생성
 def plot_completion_rate(data, freq="M"):
     if not data.empty:
-        # 주기별 데이터 처리 (freq: "D"=일별, "M"=월별, "Y"=년도별)
-        resampled_data = data.set_index("終了日").resample(freq).count()
+        # 모든 날짜 범위 생성
+        end_date = datetime.now() + timedelta(days=90)  # 3달 뒤까지
+        all_dates = pd.date_range(start=data["開始日"].min(), end=end_date, freq=freq)
         
-        # 3달 뒤까지 빈 데이터 추가
-        end_date = datetime.now() + timedelta(days=90)
-        all_dates = pd.date_range(start=resampled_data.index.min(), end=end_date, freq=freq)
-        resampled_data = resampled_data.reindex(all_dates, fill_value=0)
-
-        resampled_data["累計終了"] = resampled_data["エンジニア名"].cumsum()  # 종료 인원 누적
+        # 날짜별 완료율 계산
+        completion_data = pd.DataFrame(index=all_dates)
         total = len(st.session_state["contracts"])  # 전체 인원
-        resampled_data["完了率"] = (resampled_data["累計終了"] / total) * 100  # 완료율 계산
+
+        # 진행 중 및 완료된 인원 계산
+        completion_data["進行中"] = [
+            len(data[(data["開始日"] <= current_date) & (data["終了日"] > current_date)])
+            for current_date in completion_data.index
+        ]
+        completion_data["累計終了"] = [
+            len(data[data["終了日"] <= current_date])
+            for current_date in completion_data.index
+        ]
+
+        # 완료율 계산
+        completion_data["完了率"] = (completion_data["累計終了"] / total) * 100
 
         # 그래프 생성
         plt.figure(figsize=(10, 5))
-        plt.step(resampled_data.index, resampled_data["完了率"], where="mid", label="完了率", linewidth=2)
+        plt.step(completion_data.index, completion_data["完了率"], where="mid", label="完了率", linewidth=2)
 
         # X축과 Y축 설정
-        plt.xlim([resampled_data.index.min(), end_date])  # X축: 기간
+        plt.xlim([completion_data.index.min(), end_date])  # X축: 기간
         plt.ylim([0, 100])  # Y축: 완료율(%) 범위
-
-        # Y축 눈금 주기별 설정
-        if freq == "D":
-            plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
-        elif freq == "M":
-            plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
-        elif freq == "Y":
-            plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
 
         plt.title(f"完了率推移 ({freq})", fontsize=16, fontproperties=font_prop)
         plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
+        plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
         plt.xticks(rotation=45, fontproperties=font_prop)
         plt.yticks(fontproperties=font_prop)
         plt.grid(True)
