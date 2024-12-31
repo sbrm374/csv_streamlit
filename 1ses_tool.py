@@ -65,9 +65,10 @@ def plot_completion_rate(data, freq="M"):
     if not data.empty:
         # 주기별 데이터 처리 (freq: "D"=일별, "M"=월별, "Y"=년도별)
         resampled_data = data.set_index("終了日").resample(freq).count()
-        if resampled_data.empty:
-            st.write(f"データが見つかりません: freq={freq}")
-            return
+        
+        # 현재 날짜까지 빈 데이터 추가
+        all_dates = pd.date_range(start=resampled_data.index.min(), end=datetime.now(), freq=freq)
+        resampled_data = resampled_data.reindex(all_dates, fill_value=0)
 
         resampled_data["累計終了"] = resampled_data["エンジニア名"].cumsum()  # 종료 인원 누적
         total = len(st.session_state["contracts"])  # 전체 인원
