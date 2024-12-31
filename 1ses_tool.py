@@ -61,25 +61,41 @@ def calculate_continuity_rate(data):
     return data
 
 # 완료율 계산 및 그래프 생성
-def plot_completion_rate(data, freq="M"):
+def plot_completion_rate(data, freq="D"):
     if data.empty:
         st.write("データがありません。")
         return
 
     # 모든 날짜 범위 생성 (시작일부터 3달 뒤까지)
+    start_date = data["開始日"].min()
     end_date = datetime.now() + timedelta(days=90)
-    all_dates = pd.date_range(start=data["開始日"].min(), end=end_date, freq=freq)
+    all_dates = pd.date_range(start=start_date, end=end_date, freq=freq)
 
     # 날짜별 완료율 계산
     completion_data = pd.DataFrame(index=all_dates)
+    total_contracts = 0  # 총 계약 수
+    completed_contracts = 0  # 완료된 계약 수
+    completion_rates = []
 
-    # 완료율 계산: 누적 완료 인원 / 전체 인원
-    total = len(data)
-    completion_data["累計終了"] = [
-        len(data[data["終了日"] <= current_date])
-        for current_date in completion_data.index
-    ]
-    completion_data["完了率"] = (completion_data["累計終了"] / total) * 100
+    for current_date in completion_data.index:
+        # 해당 날짜에 시작된 계약 추가
+        started_today = len(data[data["開始日"] == current_date])
+        total_contracts += started_today
+
+        # 해당 날짜에 완료된 계약 제거
+        completed_today = len(data[data["終了日"] == current_date])
+        completed_contracts += completed_today
+
+        # 완료율 계산
+        if total_contracts > 0:
+            completion_rate = (completed_contracts / total_contracts) * 100
+        else:
+            completion_rate = 0
+
+        completion_rates.append(completion_rate)
+
+    # 완료율 데이터프레임 생성
+    completion_data["完了率"] = completion_rates
 
     # 그래프 생성
     plt.figure(figsize=(10, 5))
@@ -89,7 +105,7 @@ def plot_completion_rate(data, freq="M"):
     plt.xlim([completion_data.index.min(), end_date])  # X축: 기간
     plt.ylim([0, 100])  # Y축: 완료율(%) 범위
 
-    plt.title(f"完了率推移 ({freq})", fontsize=16, fontproperties=font_prop)
+    plt.title("完了率推移", fontsize=16, fontproperties=font_prop)
     plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
     plt.ylabel("完了率 (%)", fontsize=12, fontproperties=font_prop)
     plt.xticks(rotation=45, fontproperties=font_prop)
@@ -103,7 +119,7 @@ def plot_completion_rate(data, freq="M"):
     buf = io.BytesIO()
     plt.savefig(buf, format="png", dpi=300)
     buf.seek(0)
-    st.image(buf, caption=f"完了率推移 ({freq})", use_container_width=True)
+    st.image(buf, caption="完了率推移", use_container_width=True)
     buf.close()
 
 # タブ表示
@@ -143,15 +159,11 @@ with tab_completed:
 # 継続率グラフタブ
 with tab_rate:
     st.subheader("完了率グラフ")
-    completed_data = st.session_state["contracts"][
-        st.session_state["contracts"]["終了日"] <= datetime.now()
-    ]
+    contracts_data = st.session_state["contracts"]
 
-    if not completed_data.empty:
-        # 완료율 그래프: 년도별, 월별, 일별 옵션
-        plot_completion_rate(completed_data, freq="Y")  # 年別
-        plot_completion_rate(completed_data, freq="M")  # 月別
-        plot_completion_rate(completed_data, freq="D")  # 日別
+    if not contracts_data.empty:
+        # 완료율 그래프 생성
+        plot_completion_rate(contracts_data, freq="D")  # 일별 완료율
     else:
         st.write("現在終了した契約がありません。")
 
