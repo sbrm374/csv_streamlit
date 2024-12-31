@@ -116,22 +116,23 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": False,
         }])
 
-        # 세션 상태의 데이터프레임에 추가
+        # 세션 상태의 데이터프레임에 행 추가
         st.session_state["contracts"] = pd.concat(
             [st.session_state["contracts"], new_row], ignore_index=True
         )
 
         # 성공 메시지
         st.success("エンジニア情報を追加しました。")
-        st.rerun()
+        st.rerun()  # 스크립트 재실행으로 업데이트 반영
 
 # タブ表示
 tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
 
-# 最新タブ: CSV一覧を更新
+# 最新タブ
 with tab_latest:
-    st.subheader("CSV一覧")
+    st.subheader("最新タブ: CSV一覧")
     if not st.session_state["contracts"].empty:
+        # 세션 상태의 테이블 업데이트
         st.dataframe(st.session_state["contracts"], use_container_width=True)
     else:
         st.write("現在、データがありません。")
@@ -153,4 +154,3 @@ with tab_completed:
         st.dataframe(completed_data, use_container_width=True)
     else:
         st.write("継続が終了した契約はありません。")
-
