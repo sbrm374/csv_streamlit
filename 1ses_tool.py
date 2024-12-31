@@ -14,6 +14,7 @@ font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()  # 폰트 이름 설정
 
 st.write("Loaded font name:", font_prop.get_name())
+st.write("Current font family:", rcParams['font.family'])
 plt.rcParams['axes.unicode_minus'] = False  # 음수 기호 깨짐 방지
 
 # タイトル
