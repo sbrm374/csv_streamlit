@@ -9,7 +9,7 @@ UPLOAD_DIR = os.path.join(BASE_DIR, "uploaded_files")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Streamlit 앱 초기화
-st.title("SES事業継続率管理ツール")
+st.title("SES事業継続率管理ツール1")
 
 # CSV 업로드 처리
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
