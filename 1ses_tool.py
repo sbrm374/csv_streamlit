@@ -105,7 +105,7 @@ with st.sidebar.form("add_engineer_form"):
     submitted = st.form_submit_button("追加")
 
     if submitted:
-        # 기존 행렬에 새로운 데이터를 추가
+        # 새로운 행 추가
         new_row = pd.DataFrame([{
             "エンジニア名": engineer_name,
             "スキル": skill,
@@ -116,15 +116,14 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": False,
         }])
         
-        # 기존 DataFrame과 새 데이터를 병합
+        # 기존 DataFrame과 병합
         st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
 
-        # CSV 파일에 저장
-        output_csv = st.session_state["contracts"].to_csv(index=False, encoding="shift_jis").encode("shift_jis")  # 데이터를 바이트 형식으로 변환
-        with open("updated_ses_data.csv", "wb") as f:  # 'wb' 모드로 파일 열기
+        # CSV 파일 업데이트
+        output_csv = st.session_state["contracts"].to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+        with open("updated_ses_data.csv", "wb") as f:
             f.write(output_csv)
-                
-        st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
 
-        st.success("エンジニア情報を追加しました。CSVファイルが更新されました。")
-        st.rerun()
+        st.success("エンジニア情報を追加しました。CSVファイルと表が更新されました。")
+        st.experimental_rerun()
+
