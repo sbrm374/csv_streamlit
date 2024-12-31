@@ -93,18 +93,21 @@ def plot_completion_rate_with_slider(data, freq="D"):
 
     completion_data["完了率"] = completion_rates
 
-    # 날짜 범위를 슬라이더로 설정
-    min_date = completion_data.index.min()
-    max_date = completion_data.index.max()
+    # 날짜 범위를 슬라이더로 설정 (Timestamp → datetime.date 변환)
+    min_date = completion_data.index.min().date()
+    max_date = completion_data.index.max().date()
     selected_range = st.slider(
         "表示期間を選択してください。",
         min_value=min_date,
         max_value=max_date,
-        value=(min_date, min_date + timedelta(days=30)),
+        value=(min_date, min_date + timedelta(days=30).date()),
     )
 
     # 선택된 범위로 필터링
-    filtered_data = completion_data.loc[selected_range[0]:selected_range[1]]
+    filtered_data = completion_data.loc[
+        (completion_data.index >= pd.Timestamp(selected_range[0])) &
+        (completion_data.index <= pd.Timestamp(selected_range[1]))
+    ]
 
     # 그래프 생성
     plt.figure(figsize=(10, 5))
@@ -126,6 +129,8 @@ def plot_completion_rate_with_slider(data, freq="D"):
     buf.seek(0)
     st.image(buf, caption="完了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
+
+    
 # タブ表示
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
     ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "継続率グラフ"]
