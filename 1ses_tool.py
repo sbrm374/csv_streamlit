@@ -42,7 +42,7 @@ if uploaded_file is not None:
     try:
         # 업로드된 CSV 읽기
         st.session_state["contracts"] = pd.read_csv(uploaded_file_path, encoding="utf-8")
-        st.success(f"アップロードしたファイル: {uploaded_file.name} を読み込みました。")
+        st.success(f"アップロードしたファイル: {uploaded_file_path} を読み込みました。")
     except Exception as e:
         st.error(f"CSVファイルの読み込み中にエラーが発生しました: {e}")
 
@@ -85,9 +85,12 @@ with st.sidebar.form("add_engineer_form"):
                 st.success(f"新しいデータが {uploaded_file_path} に保存されました。")
 
                 # 저장된 파일 내용 확인
-                with open(uploaded_file_path, "r", encoding="utf-8") as file:
-                    file_content = file.read()
+                if os.path.exists(uploaded_file_path):
+                    with open(uploaded_file_path, "r", encoding="utf-8") as file:
+                        file_content = file.read()
                     st.text_area("保存されたCSVの内容を確認", file_content, height=200)
+                else:
+                    st.error(f"保存されたファイルが見つかりません: {uploaded_file_path}")
 
             except Exception as e:
                 st.error(f"CSVファイルの保存中にエラーが発生しました: {e}")
