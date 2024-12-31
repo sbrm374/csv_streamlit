@@ -71,6 +71,8 @@ if uploaded_file is not None:
             st.session_state["contracts"] = pd.concat([contracts, new_data], ignore_index=True)
             save_data(st.session_state["contracts"])
             st.success("CSVファイルがアップロードされ、データが追加されました。")
+    except Exception as e:
+        st.error(f"CSV読み込み中にエラーが発生しました: {e}")
 
 # 데이터 표시
 tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
