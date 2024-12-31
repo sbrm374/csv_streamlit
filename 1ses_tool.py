@@ -60,22 +60,37 @@ def calculate_continuity_rate(data):
     return data
 
 # 종료율 그래프
-def plot_continuity_rate(data):
+def plot_continuity_rate(data, freq="M"):
     if not data.empty:
-        data = calculate_continuity_rate(data)
+        # 주기별 데이터 처리 (freq: "D"=일별, "M"=월별, "Y"=년도별)
+        data = data.set_index("終了日").resample(freq).count()
+        data["累計終了"] = data["エンジニア名"].cumsum()  # 종료 인원 누적
+        total = len(st.session_state["contracts"])
+        data["継続率"] = (total - data["累計終了"]) / total * 100
+
+        # 그래프 생성
         plt.figure(figsize=(10, 5))
-        plt.plot(data["終了日"], data["継続率"], marker="o")
-        plt.title("継続率推移", fontsize=16, fontproperties=font_prop)
-        plt.xlabel("終了日", fontsize=12, fontproperties=font_prop)
-        plt.ylabel("継続率 (%)", fontsize=12, fontproperties=font_prop)
-        plt.xticks(rotation=45)
+        plt.step(data.index, total - data["累計終了"], where="mid", label="継続中の人数", linewidth=2)
+
+        # Y축 설정: 과거부터 3개월 후까지
+        min_date = data.index.min()
+        max_date = datetime.now() + timedelta(days=90)
+        plt.ylim([min_date, max_date])
+
+        plt.title(f"継続率推移 ({freq})", fontsize=16, fontproperties=font_prop)
+        plt.xlabel("期間", fontsize=12, fontproperties=font_prop)
+        plt.ylabel("終了日 (日付)", fontsize=12, fontproperties=font_prop)
+        plt.xticks(rotation=45, fontproperties=font_prop)
         plt.grid(True)
+
+        # 범례 추가
+        plt.legend(prop=font_prop, fontsize=10)
 
         # 그래프를 버퍼에 저장 후 Streamlit에 출력
         buf = io.BytesIO()
         plt.savefig(buf, format="png", dpi=300)
         buf.seek(0)
-        st.image(buf, caption="継続率推移 グラフ", use_container_width=True)
+        st.image(buf, caption=f"継続率推移 ({freq})", use_container_width=True)
         buf.close()
 
 # タブ表示
