@@ -100,7 +100,7 @@ def plot_completion_rate_with_slider(data, freq="D"):
         "表示期間を選択してください。",
         min_value=min_date,
         max_value=max_date,
-        value=(min_date, min_date + timedelta(days=30).date()),
+        value=(min_date, (min_date + timedelta(days=30))),  # 수정된 부분
     )
 
     # 선택된 범위로 필터링
@@ -129,6 +129,7 @@ def plot_completion_rate_with_slider(data, freq="D"):
     buf.seek(0)
     st.image(buf, caption="完了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
+
 
     
 # タブ表示
