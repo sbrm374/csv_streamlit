@@ -162,11 +162,11 @@ with tab_completed:
 
 # 継続率グラフタブ
 with tab_rate:
-    st.subheader("完了率グラフ (Plotly版)")
+    st.subheader("完了率グラフ (スライダー付き)")
     contracts_data = st.session_state["contracts"]
 
     if not contracts_data.empty:
-        plot_completion_rate_with_plotly(contracts_data, freq="D")
+        plot_completion_rate_with_slider(contracts_data, freq="D")
     else:
         st.write("現在終了した契約がありません。")
 
