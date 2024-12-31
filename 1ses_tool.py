@@ -72,7 +72,7 @@ def plot_completion_rate(data, freq="M"):
 
     # 날짜별 완료율 계산
     completion_data = pd.DataFrame(index=all_dates)
-    total = len(st.session_state["contracts"])  # 전체 인원
+    total = len(data)  # 다른 탭과 동일한 데이터 기준으로 전체 인원 계산
 
     # 진행 중 및 완료된 인원 계산
     completion_data["進行中"] = [
