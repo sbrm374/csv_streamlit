@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import os
 from datetime import datetime
 
-# タイトル
-st.title("SES事業継続率管理ツール")
+# CSV 파일 경로
+CSV_FILE_PATH = "updated_ses_data.csv"
 
-# サンプルCSVデータ
+# 샘플 데이터 생성
 sample_data = {
     "エンジニア名": ["山田太郎", "佐藤花子", "鈴木一郎", "田中次郎"],
     "スキル": ["Python, AWS", "Java, Spring", "React, JavaScript", "C#, .NET"],
@@ -15,9 +15,27 @@ sample_data = {
     "終了日": ["2023-12-31", "2024-04-30", "2023-12-31", "2024-01-31"],
 }
 
-# サンプルCSVをダウンロードできるようにする
+# 샘플 CSV 생성
 sample_df = pd.DataFrame(sample_data)
 sample_csv = sample_df.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+
+# CSV 데이터 로드 함수
+def load_data():
+    if os.path.exists(CSV_FILE_PATH):
+        return pd.read_csv(CSV_FILE_PATH, encoding="shift_jis")
+    else:
+        return pd.DataFrame(
+            columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
+        )
+
+# CSV 데이터 저장 함수
+def save_data(dataframe):
+    dataframe.to_csv(CSV_FILE_PATH, index=False, encoding="shift_jis")
+
+# Streamlit 앱 초기화
+st.title("SES事業継続率管理ツール")
+
+# 샘플 CSV 다운로드 버튼
 st.sidebar.download_button(
     label="サンプルCSVをダウンロード",
     data=sample_csv,
@@ -25,80 +43,51 @@ st.sidebar.download_button(
     mime="text/csv",
 )
 
-# セッションステートの初期化
+# 데이터 로드
 if "contracts" not in st.session_state:
-    st.session_state["contracts"] = pd.DataFrame(
-        columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
-    )
+    st.session_state["contracts"] = load_data()
 
-# CSVファイルアップロード
+contracts = st.session_state["contracts"]
+
+# CSV 업로드 처리
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
-
-# CSVの読み込みとデータ初期化
 if uploaded_file is not None:
     try:
         new_data = pd.read_csv(uploaded_file, encoding="shift_jis")
-
-        # 必要な列が存在するか確認
         required_columns = ["エンジニア名", "スキル", "顧客名", "開始日", "終了日"]
         if not all(col in new_data.columns for col in required_columns):
             st.error(f"CSVファイルには以下の列が必要です: {', '.join(required_columns)}")
-            st.stop()
-
-        # 日付変換とエラーチェック
-        new_data["開始日"] = pd.to_datetime(new_data["開始日"], format="%Y-%m-%d", errors="coerce")
-        new_data["終了日"] = pd.to_datetime(new_data["終了日"], format="%Y-%m-%d", errors="coerce")
-        if new_data["開始日"].isna().any() or new_data["終了日"].isna().any():
-            st.error("日付が正しくありません。開始日と終了日はYYYY-MM-DD形式で入力してください。")
-            st.stop()
-
-        # 継続日数の計算
-        new_data["継続日数"] = (datetime.now() - new_data["開始日"]).dt.days
-        new_data["アラート非表示"] = False
-
-        # セッションステートに保存
-        st.session_state["contracts"] = new_data
+        else:
+            # 날짜 변환 및 검증
+            new_data["開始日"] = pd.to_datetime(new_data["開始日"], errors="coerce")
+            new_data["終了日"] = pd.to_datetime(new_data["終了日"], errors="coerce")
+            new_data["継続日数"] = (datetime.now() - new_data["開始日"]).dt.days
+            new_data["アラート非表示"] = False
+            st.session_state["contracts"] = pd.concat([contracts, new_data], ignore_index=True)
+            save_data(st.session_state["contracts"])
+            st.success("CSVファイルがアップロードされ、データが追加されました。")
     except Exception as e:
-        st.error(f"CSVの読み込み中にエラーが発生しました: {e}")
-        st.stop()
+        st.error(f"CSV読み込み中にエラーが発生しました: {e}")
 
-# データフレーム取得
-contracts = st.session_state["contracts"]
-
-# タブ表示
+# 데이터 표시
 tab_latest, tab_ongoing, tab_completed = st.tabs(["最新タブ", "継続タブ", "終了タブ"])
 
-# 最新タブ
 with tab_latest:
     st.subheader("最新タブ: CSV一覧")
-    if not contracts.empty:
-        st.dataframe(contracts, use_container_width=True)
-    else:
-        st.write("CSVデータがアップロードされていません。")
+    st.dataframe(contracts, use_container_width=True)
 
-# 継続タブ
 with tab_ongoing:
     st.subheader("継続タブ: 継続中の契約")
     ongoing_data = contracts[contracts["終了日"] > datetime.now()]
-    if not ongoing_data.empty:
-        st.dataframe(ongoing_data, use_container_width=True)
-    else:
-        st.write("現在継続中の契約はありません。")
+    st.dataframe(ongoing_data, use_container_width=True)
 
-# 終了タブ
 with tab_completed:
     st.subheader("終了タブ: 継続が終了した契約")
     completed_data = contracts[contracts["終了日"] <= datetime.now()]
-    if not completed_data.empty:
-        st.dataframe(completed_data, use_container_width=True)
-    else:
-        st.write("継続が終了した契約はありません。")
+    st.dataframe(completed_data, use_container_width=True)
 
-# エンジニア情報追加フォーム
+# 엔지니어 정보 추가 폼
 st.sidebar.subheader("エンジニア情報を追加")
-if "rerun_flag" not in st.session_state:
-    st.session_state["rerun_flag"] = False
-
 with st.sidebar.form("add_engineer_form"):
     engineer_name = st.text_input("エンジニア名")
     skill = st.text_input("スキル")
@@ -108,7 +97,6 @@ with st.sidebar.form("add_engineer_form"):
     submitted = st.form_submit_button("追加")
 
     if submitted:
-        # 새로운 행 추가
         new_row = pd.DataFrame([{
             "エンジニア名": engineer_name,
             "スキル": skill,
@@ -118,21 +106,6 @@ with st.sidebar.form("add_engineer_form"):
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": False,
         }])
-
-        # 기존 DataFrame과 병합
-        st.session_state["contracts"] = pd.concat([st.session_state["contracts"], new_row], ignore_index=True)
-
-        # CSV 파일 업데이트
-        output_csv = st.session_state["contracts"].to_csv(index=False, encoding="shift_jis").encode("shift_jis")
-        with open("updated_ses_data.csv", "wb") as f:
-            f.write(output_csv)
-
-        # 새로고침 플래그 설정
-        st.session_state["rerun_flag"] = True
-
-# 상태 확인 후 새로고침
-if st.session_state["rerun_flag"]:
-    st.session_state["rerun_flag"] = False
-    st.query_params = {"updated": "true"}  # Updated query parameters
-    st.success("エンジニア情報を追加しました。CSVファイルと表が更新されました。")
-
+        st.session_state["contracts"] = pd.concat([contracts, new_row], ignore_index=True)
+        save_data(st.session_state["contracts"])
+        st.success("エンジニア情報が追加されました。")
