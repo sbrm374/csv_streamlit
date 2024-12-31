@@ -34,6 +34,9 @@ st.sidebar.download_button(
     mime="text/csv",
 )
 
+# CSVファイルアップロード
+uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
+
 # セッションステートの初期化
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
