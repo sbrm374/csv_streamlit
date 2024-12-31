@@ -22,11 +22,15 @@ sample_csv = sample_df.to_csv(index=False, encoding="shift_jis").encode("shift_j
 # CSV 데이터 로드 함수
 def load_data():
     if os.path.exists(CSV_FILE_PATH):
-        return pd.read_csv(CSV_FILE_PATH, encoding="shift_jis")
+        data = pd.read_csv(CSV_FILE_PATH, encoding="shift_jis")
     else:
-        return pd.DataFrame(
+        data = pd.DataFrame(
             columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
         )
+    # 날짜 열 형식 변환
+    data["開始日"] = pd.to_datetime(data["開始日"], errors="coerce")
+    data["終了日"] = pd.to_datetime(data["終了日"], errors="coerce")
+    return data
 
 # CSV 데이터 저장 함수
 def save_data(dataframe):
