@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 from datetime import datetime
 
 # タイトル
@@ -28,15 +29,39 @@ if "contracts" not in st.session_state:
         }
     )
 
-# タブ表示
-tab_all, tab_latest, tab_ongoing, tab_completed = st.tabs(["全体タブ", "最新タブ", "継続タブ", "終了タブ"])
+# 지속률 계산 함수
+def calculate_continuity_rate(data):
+    # 종료일 기준으로 정렬
+    data = data.sort_values("終了日")
+    total = len(data)
+    data["累計終了"] = range(1, total + 1)  # 종료된 인원 누적 합
+    data["継続率"] = (total - data["累計終了"]) / total * 100  # 지속률 계산
+    return data
 
-# 全体タブ (알림 비표시 포함 모든 데이터를 보여줌)
+# 終了タブ 종료율 그래프
+def plot_continuity_rate(data):
+    if not data.empty:
+        data = calculate_continuity_rate(data)
+        plt.figure(figsize=(10, 5))
+        plt.plot(data["終了日"], data["継続率"], marker="o")
+        plt.title("継続率推移", fontsize=16)
+        plt.xlabel("終了日", fontsize=12)
+        plt.ylabel("継続率 (%)", fontsize=12)
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        st.pyplot(plt)
+
+# タブ表示
+tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
+    ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "継続率グラフ"]
+)
+
+# 全体タブ (모든 데이터를 보여줌)
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
     st.dataframe(st.session_state["contracts"], use_container_width=True)
 
-# 最新タブ (알림 비표시 제외한 데이터만 표시)
+# 最新タブ (알림 비표시 제외)
 with tab_latest:
     st.subheader("最新タブ: アラート表示中の契約")
     latest_data = st.session_state["contracts"][st.session_state["contracts"]["アラート非表示"] == False]
@@ -59,6 +84,17 @@ with tab_completed:
         (st.session_state["contracts"]["アラート非表示"] == False)
     ]
     st.dataframe(completed_data, use_container_width=True)
+
+# 継続率グラフタブ
+with tab_rate:
+    st.subheader("継続率グラフ")
+    completed_data = st.session_state["contracts"][
+        st.session_state["contracts"]["終了日"] <= datetime.now()
+    ]
+    if not completed_data.empty:
+        plot_continuity_rate(completed_data)
+    else:
+        st.write("現在終了した契約がありません。")
 
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
@@ -90,4 +126,4 @@ with st.sidebar.form("add_engineer_form"):
 
         # 성공 메시지
         st.success("エンジニア情報を追加しました。")
-        st.rerun()
+        st.experimental_rerun()
