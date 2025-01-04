@@ -52,7 +52,7 @@ if "contracts" not in st.session_state:
             "アラート非表示": [],
         }
     )
-    st.session_state["uploaded_data"] = None  # 업로드된 데이터를 별도로 관리
+    st.session_state["uploaded_data"] = None
 
 # 업로드된 파일 처리
 if uploaded_file is not None:
@@ -68,11 +68,11 @@ if uploaded_file is not None:
 
         # 업로드된 데이터를 세션 상태에 저장
         st.session_state["uploaded_data"] = uploaded_data
-        st.session_state["contracts"] = uploaded_data  # 업로드된 데이터로 교체
+        st.session_state["contracts"] = uploaded_data.copy()  # 업로드된 데이터로 교체
         st.success("CSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
-
+        
 # 지속률 계산 함수
 def calculate_continuity_rate(data):
     data = data.sort_values("終了日")
@@ -150,11 +150,6 @@ def plot_completion_rate_with_slider(data, freq="D"):
     st.image(buf, caption="終了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
 
-
-    
-
-
-
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
 with st.sidebar.form("add_engineer_form"):
@@ -183,7 +178,7 @@ with st.sidebar.form("add_engineer_form"):
             [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
         )
         st.success("エンジニア情報を追加しました。")
-        st.rerun()
+        # st.rerun()
 
 # 데이터 표시
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
