@@ -185,80 +185,76 @@ with st.sidebar.form("add_engineer_form"):
             [st.session_state["contracts"], pd.DataFrame([new_row])],
             ignore_index=True,
         )
-        st.session_state["render_flag"] = True 
 
-# データ表示
-if st.session_state.get("render_flag", False):
-    # 상태 플래그가 True인 경우 데이터를 업데이트한 후 렌더링
-    st.session_state["render_flag"] = False  # 플래그를 초기화
-else:
-    # 정상적으로 렌더링 수행
-    tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
-        ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "終了率グラフ"]
+        # データを更新した後、強制的に再レンダリング
+        st.rerun()
+
+# データ表示タブ
+tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
+    ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "終了率グラフ"]
+)
+
+# 全体タブ（すべてのデータを表示）
+with tab_all:
+    st.subheader("全体タブ: 全ての契約")
+    st.dataframe(
+        st.session_state["contracts"],
+        use_container_width=True,
+        column_config={
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+        },
     )
 
-    # 全体タブ（すべてのデータを表示）
-    with tab_all:
-        st.subheader("全体タブ: 全ての契約")
-        st.dataframe(
-            st.session_state["contracts"],
-            use_container_width=True,
-            column_config={
-                "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
-            },
-        )
+# 最新タブ（アラート非表示を除外）
+with tab_latest:
+    st.subheader("最新タブ: アラート表示中の契約")
+    latest_data = st.session_state["contracts"][
+        st.session_state["contracts"]["アラート非表示"] == False
+    ]
+    st.dataframe(
+        latest_data,
+        use_container_width=True,
+        column_config={
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+        },
+    )
 
-    # 最新タブ（アラート非表示を除外）
-    with tab_latest:
-        st.subheader("最新タブ: アラート表示中の契約")
-        latest_data = st.session_state["contracts"][
-            st.session_state["contracts"]["アラート非表示"] == False
-        ]
-        st.dataframe(
-            latest_data,
-            use_container_width=True,
-            column_config={
-                "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
-            },
-        )
+# 継続タブ
+with tab_ongoing:
+    st.subheader("継続タブ: 継続中の契約")
+    ongoing_data = st.session_state["contracts"][
+        (st.session_state["contracts"]["終了日"] > datetime.now()) &
+        (st.session_state["contracts"]["アラート非表示"] == False)
+    ]
+    st.dataframe(
+        ongoing_data,
+        use_container_width=True,
+        column_config={
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+        },
+    )
 
-    # 継続タブ
-    with tab_ongoing:
-        st.subheader("継続タブ: 継続中の契約")
-        ongoing_data = st.session_state["contracts"][
-            (st.session_state["contracts"]["終了日"] > datetime.now()) &
-            (st.session_state["contracts"]["アラート非表示"] == False)
-        ]
-        st.dataframe(
-            ongoing_data,
-            use_container_width=True,
-            column_config={
-                "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
-            },
-        )
+# 終了タブ
+with tab_completed:
+    st.subheader("終了タブ: 継続が終了した契約")
+    completed_data = st.session_state["contracts"][
+        (st.session_state["contracts"]["終了日"] <= datetime.now()) &
+        (st.session_state["contracts"]["アラート非表示"] == False)
+    ]
+    st.dataframe(
+        completed_data,
+        use_container_width=True,
+        column_config={
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+        },
+    )
 
-    # 終了タブ
-    with tab_completed:
-        st.subheader("終了タブ: 継続が終了した契約")
-        completed_data = st.session_state["contracts"][
-            (st.session_state["contracts"]["終了日"] <= datetime.now()) &
-            (st.session_state["contracts"]["アラート非表示"] == False)
-        ]
-        st.dataframe(
-            completed_data,
-            use_container_width=True,
-            column_config={
-                "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
-            },
-        )
+# 終了率グラフタブ
+with tab_rate:
+    st.subheader("終了率グラフ (スライダー付き)")
+    contracts_data = st.session_state["contracts"]
 
-    # 終了率グラフタブ
-    with tab_rate:
-        st.subheader("終了率グラフ (スライダー付き)")
-        contracts_data = st.session_state["contracts"]
-
-        if not contracts_data.empty:
-            plot_completion_rate_with_slider(contracts_data, freq="D")
-        else:
-            st.write("現在終了した契約がありません。")
-
+    if not contracts_data.empty:
+        plot_completion_rate_with_slider(contracts_data, freq="D")
+    else:
+        st.write("現在終了した契約がありません。")
