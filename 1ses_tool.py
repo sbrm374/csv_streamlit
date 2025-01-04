@@ -39,24 +39,24 @@ st.sidebar.download_button(
 # CSVファイルアップロード
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 
-# セッションステートの初期化
+# 세션 상태 초기화
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
-        sample_data | {
-            "開始日": pd.to_datetime(sample_data["開始日"]),
-            "終了日": pd.to_datetime(sample_data["終了日"]),
-            "継続日数": [
-                (datetime.now() - pd.to_datetime(start)).days
-                for start in sample_data["開始日"]
-            ],
-            "アラート非表示": [False] * len(sample_data["エンジニア名"]),
+        {
+            "エンジニア名": [],
+            "スキル": [],
+            "顧客名": [],
+            "開始日": [],
+            "終了日": [],
+            "継続日数": [],
+            "アラート非表示": [],
         }
     )
 
-# アップロードされたファイルを処理
+# 업로드된 파일 처리
 if uploaded_file is not None:
     try:
-        # CSV 읽기 (적절한 인코딩 설정 필요)
+        # CSV 데이터 읽기
         uploaded_data = pd.read_csv(uploaded_file, encoding="shift_jis")
         uploaded_data["開始日"] = pd.to_datetime(uploaded_data["開始日"])
         uploaded_data["終了日"] = pd.to_datetime(uploaded_data["終了日"])
@@ -65,8 +65,10 @@ if uploaded_file is not None:
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
 
-        # 세션 상태 업데이트
-        st.session_state["contracts"] = uploaded_data
+        # 기존 데이터와 병합
+        st.session_state["contracts"] = pd.concat(
+            [st.session_state["contracts"], uploaded_data], ignore_index=True
+        )
         st.success("CSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
@@ -208,7 +210,7 @@ with st.sidebar.form("add_engineer_form"):
     submitted = st.form_submit_button("追加")
 
     if submitted:
-        # 새로운 행 추가
+        # 새로운 데이터 추가
         new_row = {
             "エンジニア名": engineer_name,
             "スキル": skill,
@@ -218,12 +220,8 @@ with st.sidebar.form("add_engineer_form"):
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": alert_hidden,
         }
-
-        # 세션 상태의 데이터프레임에 행 추가
         st.session_state["contracts"] = pd.concat(
             [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
         )
-
-        # 성공 메시지
         st.success("エンジニア情報を追加しました。")
         st.rerun()
