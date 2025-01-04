@@ -181,6 +181,7 @@ with st.sidebar.form("add_engineer_form"):
             [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
         )
         st.success("エンジニア情報を追加しました。")
+        st.rerun()
 
 # データ表示
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
