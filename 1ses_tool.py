@@ -8,16 +8,16 @@ import io
 import os
 import plotly.express as px
 
-# 폰트 설정
+# フォント設定
 font_path = "./fonts/NotoSansJP-Regular.otf"
 font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()
-plt.rcParams['axes.unicode_minus'] = False  # 음수 기호 깨짐 방지
+plt.rcParams['axes.unicode_minus'] = False  # マイナス記号の崩れを防止
 
 # タイトル
 st.title("SES事業継続率管理ツール")
 
-# 샘플 데이터
+# サンプルデータ
 sample_data = {
     "エンジニア名": ["山田太郎", "佐藤花子", "鈴木一郎", "田中次郎"],
     "スキル": ["Python, AWS", "Java, Spring", "React, JavaScript", "C#, .NET"],
@@ -39,7 +39,7 @@ st.sidebar.download_button(
 # CSVファイルアップロード
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 
-# 세션 상태 초기화
+# セッション状態の初期化
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
         {
@@ -53,10 +53,10 @@ if "contracts" not in st.session_state:
         }
     )
 
-# 업로드된 파일 처리
+# アップロードされたファイルの処理
 if uploaded_file is not None:
     try:
-        # CSV 데이터 읽기
+        # CSVデータを読み込む
         uploaded_data = pd.read_csv(uploaded_file, encoding="shift_jis")
         uploaded_data["開始日"] = pd.to_datetime(uploaded_data["開始日"])
         uploaded_data["終了日"] = pd.to_datetime(uploaded_data["終了日"])
@@ -65,18 +65,18 @@ if uploaded_file is not None:
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
 
-        # 이미 업로드된 데이터인지 확인
+        # すでにアップロードされたデータかどうかを確認
         if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
-            # 업로드된 데이터를 기존 데이터에 병합
+            # アップロードされたデータを既存データにマージ
             st.session_state["contracts"] = pd.concat(
                 [st.session_state["contracts"], uploaded_data], ignore_index=True
             )
-            st.session_state["uploaded_flag"] = True  # 업로드 완료 플래그 설정
+            st.session_state["uploaded_flag"] = True  # アップロード完了フラグを設定
             st.success("CSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
         
-# 지속률 계산 함수
+# 継続率を計算する関数
 def calculate_continuity_rate(data):
     data = data.sort_values("終了日")
     total = len(data)
@@ -84,21 +84,21 @@ def calculate_continuity_rate(data):
     data["継続率"] = (total - data["累計終了"]) / total * 100
     return data
 
-# 완료율 그래프 + 슬라이더로 X축 스크롤 구현
+# 終了率グラフ + スライダーでX軸をスクロールする
 def plot_completion_rate_with_slider(data, freq="D"):
     if data.empty:
         st.write("データがありません。")
         return
 
-    # 모든 날짜 범위 생성 (시작일부터 3달 뒤까지)
+    # すべての日付範囲を生成（開始日から3ヶ月後まで）
     start_date = data["開始日"].min()
     end_date = datetime.now() + timedelta(days=90)
     all_dates = pd.date_range(start=start_date, end=end_date, freq=freq)
 
-    # 날짜별 완료율 계산
+    # 日付ごとの終了率を計算
     completion_data = pd.DataFrame(index=all_dates)
-    total_contracts = 0  # 총 계약 수
-    completed_contracts = 0  # 완료된 계약 수
+    total_contracts = 0  # 総契約数
+    completed_contracts = 0  # 終了した契約数
     completion_rates = []
 
     for current_date in completion_data.index:
@@ -116,23 +116,23 @@ def plot_completion_rate_with_slider(data, freq="D"):
 
     completion_data["終了率"] = completion_rates
 
-    # 날짜 범위를 슬라이더로 설정 (Timestamp → datetime.date 변환)
+    # 日付範囲をスライダーで設定（Timestamp → datetime.dateに変換）
     min_date = completion_data.index.min().date()
     max_date = completion_data.index.max().date()
     selected_range = st.slider(
         "表示期間を選択してください。",
         min_value=min_date,
         max_value=max_date,
-        value=(min_date, (min_date + timedelta(days=30))),  # 수정된 부분
+        value=(min_date, (min_date + timedelta(days=30))),  # 修正された部分
     )
 
-    # 선택된 범위로 필터링
+    # 選択した範囲でフィルタリング
     filtered_data = completion_data.loc[
         (completion_data.index >= pd.Timestamp(selected_range[0])) &
         (completion_data.index <= pd.Timestamp(selected_range[1]))
     ]
 
-    # 그래프 생성
+    # グラフを作成
     plt.figure(figsize=(10, 5))
     plt.step(filtered_data.index, filtered_data["終了率"], where="mid", label="終了率", linewidth=2)
 
@@ -143,10 +143,10 @@ def plot_completion_rate_with_slider(data, freq="D"):
     plt.yticks(fontproperties=font_prop)
     plt.grid(True)
 
-    # 범례 추가
+    # 凡例を追加
     plt.legend(prop=font_prop, fontsize=10)
 
-    # 그래프를 버퍼에 저장 후 Streamlit에 출력
+    # グラフをバッファに保存してStreamlitに表示
     buf = io.BytesIO()
     plt.savefig(buf, format="png", dpi=300)
     buf.seek(0)
@@ -165,7 +165,7 @@ with st.sidebar.form("add_engineer_form"):
     submitted = st.form_submit_button("追加")
 
     if submitted:
-        # 새로운 데이터 생성
+        # 新しいデータを生成
         new_row = {
             "エンジニア名": engineer_name,
             "スキル": skill,
@@ -176,20 +176,18 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": alert_hidden,
         }
 
-        # 세션 상태에 새로운 데이터 추가
+        # セッション状態に新しいデータを追加
         st.session_state["contracts"] = pd.concat(
             [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
         )
         st.success("エンジニア情報を追加しました。")
 
-        # st.rerun()
-
-# 데이터 표시
+# データ表示
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
     ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "終了率グラフ"]
 )
 
-# 全体タブ (모든 데이터를 보여줌)
+# 全体タブ（すべてのデータを表示）
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
     st.dataframe(
@@ -200,7 +198,7 @@ with tab_all:
         },
     )
 
-# 最新タブ (알림 비표시 제외)
+# 最新タブ（アラート非表示を除外）
 with tab_latest:
     st.subheader("最新タブ: アラート表示中の契約")
     latest_data = st.session_state["contracts"][st.session_state["contracts"]["アラート非表示"] == False]
@@ -241,7 +239,6 @@ with tab_completed:
             "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
         },
     )
-    
 
 # 終了率グラフタブ
 with tab_rate:
