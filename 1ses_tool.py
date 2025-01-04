@@ -194,13 +194,25 @@ tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
 # 全体タブ (모든 데이터를 보여줌)
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
-    st.dataframe(st.session_state["contracts"], use_container_width=True)
-    
+    st.dataframe(
+        st.session_state["contracts"],
+        use_container_width=True,
+        column_config={
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+        },
+    )
+
 # 最新タブ (알림 비표시 제외)
 with tab_latest:
     st.subheader("最新タブ: アラート表示中の契約")
     latest_data = st.session_state["contracts"][st.session_state["contracts"]["アラート非表示"] == False]
-    st.dataframe(latest_data, use_container_width=True)
+    st.dataframe(
+        latest_data,
+        use_container_width=True,
+        column_config={
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+        },
+    )
 
 # 継続タブ
 with tab_ongoing:
@@ -209,7 +221,13 @@ with tab_ongoing:
         (st.session_state["contracts"]["終了日"] > datetime.now()) &
         (st.session_state["contracts"]["アラート非表示"] == False)
     ]
-    st.dataframe(ongoing_data, use_container_width=True)
+    st.dataframe(
+        ongoing_data,
+        use_container_width=True,
+        column_config={
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+        },
+    )
 
 # 終了タブ
 with tab_completed:
@@ -218,7 +236,13 @@ with tab_completed:
         (st.session_state["contracts"]["終了日"] <= datetime.now()) &
         (st.session_state["contracts"]["アラート非表示"] == False)
     ]
-    st.dataframe(completed_data, use_container_width=True)
+    st.dataframe(
+        completed_data,
+        use_container_width=True,
+        column_config={
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+        },
+    )
     
 
 # 終了率グラフタブ
