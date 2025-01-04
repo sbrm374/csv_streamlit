@@ -12,7 +12,7 @@ import plotly.express as px
 font_path = "./fonts/NotoSansJP-Regular.otf"
 font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()
-plt.rcParams['axes.unicode_minus'] = False  # マイナス記号の崩れを防止
+plt.rcParams['axes.unicode_minus'] = False  # マイナス記号が崩れないように設定
 
 # タイトル
 st.title("SES事業継続率管理ツール")
@@ -26,7 +26,7 @@ sample_data = {
     "終了日": ["2023-12-31", "2024-04-30", "2023-12-31", "2024-01-31"],
 }
 
-# サンプルCSVをダウンロードできるようにする
+# サンプルCSVをダウンロード可能にする
 sample_df = pd.DataFrame(sample_data)
 sample_csv = sample_df.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
 st.sidebar.download_button(
@@ -36,10 +36,10 @@ st.sidebar.download_button(
     mime="text/csv",
 )
 
-# CSVファイルアップロード
+# CSVファイルをアップロード
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 
-# セッション状態の初期化
+# セッション状態を初期化
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
         {
@@ -54,10 +54,9 @@ if "contracts" not in st.session_state:
     )
 
 if "render_flag" not in st.session_state:
-    st.session_state["render_flag"] = False  # 렌더링 제어 플래그 초기화
+    st.session_state["render_flag"] = False  # レンダリング制御フラグの初期化
 
-
-# アップロードされたファイルの処理
+# アップロードされたファイルを処理
 if uploaded_file is not None:
     try:
         # CSVデータを読み込む
@@ -69,7 +68,7 @@ if uploaded_file is not None:
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
 
-        # すでにアップロードされたデータかどうかを確認
+        # すでにアップロードされたデータか確認
         if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
             # アップロードされたデータを既存データにマージ
             st.session_state["contracts"] = pd.concat(
@@ -79,7 +78,7 @@ if uploaded_file is not None:
             st.success("CSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
-        
+
 # 継続率を計算する関数
 def calculate_continuity_rate(data):
     data = data.sort_values("終了日")
@@ -88,13 +87,13 @@ def calculate_continuity_rate(data):
     data["継続率"] = (total - data["累計終了"]) / total * 100
     return data
 
-# 終了率グラフ + スライダーでX軸をスクロールする
+# 終了率グラフ + スライダーでX軸をスクロール
 def plot_completion_rate_with_slider(data, freq="D"):
     if data.empty:
         st.write("データがありません。")
         return
 
-    # すべての日付範囲を生成（開始日から3ヶ月後まで）
+    # 全ての日付範囲を生成（開始日から3か月後まで）
     start_date = data["開始日"].min()
     end_date = datetime.now() + timedelta(days=90)
     all_dates = pd.date_range(start=start_date, end=end_date, freq=freq)
@@ -169,7 +168,7 @@ with st.sidebar.form("add_engineer_form"):
     submitted = st.form_submit_button("追加")
 
 if submitted:
-    # 입력값 유효성 검사
+    # 入力値の有効性を確認
     if not (engineer_name and skill and client_name and start_date and end_date):
         st.warning("すべての情報を入力してください。")
     else:
@@ -184,14 +183,14 @@ if submitted:
             "アラート非表示": alert_hidden,
         }
 
-        # セッション 상태에 새로운 데이터 추가
+        # セッション状態に新しいデータを追加
         updated_contracts = pd.concat(
             [st.session_state["contracts"], pd.DataFrame([new_row])],
             ignore_index=True,
         )
         st.session_state["contracts"] = updated_contracts
 
-        # 추가 완료 메시지
+        # 追加完了メッセージ
         st.success("エンジニア情報を追加しました。")
 
 # データ表示タブ
