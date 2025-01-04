@@ -176,13 +176,17 @@ with st.sidebar.form("add_engineer_form"):
             "アラート非表示": alert_hidden,
         }
 
-        # セッション 상태에 새로운 데이터 추가
+        # 新しい行をセッション状態に追加
         if "contracts" not in st.session_state:
             st.session_state["contracts"] = pd.DataFrame([new_row])
         else:
             st.session_state["contracts"] = pd.concat(
-                [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
+                [st.session_state["contracts"], pd.DataFrame([new_row])],
+                ignore_index=True,
             )
+
+        # 新しいデータの追加完了メッセージ
+        st.success("エンジニア情報を追加しました。")
         # st.success("エンジニア情報を追加しました。")
         # st.rerun()
 
