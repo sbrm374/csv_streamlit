@@ -42,7 +42,15 @@ uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロード�
 # セッションステートの初期化
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
-        columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
+        sample_data | {
+            "開始日": pd.to_datetime(sample_data["開始日"]),
+            "終了日": pd.to_datetime(sample_data["終了日"]),
+            "継続日数": [
+                (datetime.now() - pd.to_datetime(start)).days
+                for start in sample_data["開始日"]
+            ],
+            "アラート非表示": [False] * len(sample_data["エンジニア名"]),
+        }
     )
 
 # アップロードされたファイルを処理
@@ -60,7 +68,6 @@ if uploaded_file is not None:
         # 세션 상태 업데이트
         st.session_state["contracts"] = uploaded_data
         st.success("CSVファイルがアップロードされました。")
-
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
 
@@ -143,7 +150,8 @@ def plot_completion_rate_with_slider(data, freq="D"):
 
 
     
-# タブ表示
+
+# 데이터 표시
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
     ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "終了率グラフ"]
 )
@@ -152,7 +160,7 @@ tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
     st.dataframe(st.session_state["contracts"], use_container_width=True)
-
+    
 # 最新タブ (알림 비표시 제외)
 with tab_latest:
     st.subheader("最新タブ: アラート表示中の契約")
@@ -216,6 +224,6 @@ with st.sidebar.form("add_engineer_form"):
             [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
         )
 
-        # 성공 메시지 출력
+        # 성공 메시지
         st.success("エンジニア情報を追加しました。")
         st.rerun()
