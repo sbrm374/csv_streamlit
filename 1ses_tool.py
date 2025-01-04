@@ -56,7 +56,7 @@ if "contracts" not in st.session_state:
 # 업로드된 파일 처리
 if uploaded_file is not None:
     try:
-        # 업로드된 데이터 읽기
+        # CSV 데이터 읽기
         uploaded_data = pd.read_csv(uploaded_file, encoding="shift_jis")
         uploaded_data["開始日"] = pd.to_datetime(uploaded_data["開始日"])
         uploaded_data["終了日"] = pd.to_datetime(uploaded_data["終了日"])
@@ -65,11 +65,16 @@ if uploaded_file is not None:
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
 
-        # 업로드된 데이터를 기존 데이터에 병합
-        st.session_state["contracts"] = pd.concat(
-            [st.session_state["contracts"], uploaded_data], ignore_index=True
-        )
-        st.success("CSVファイルがアップロードされました。")
+        # 이미 업로드된 데이터인지 확인
+        if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
+            # 업로드된 데이터를 기존 데이터에 병합
+            st.session_state["contracts"] = pd.concat(
+                [st.session_state["contracts"], uploaded_data], ignore_index=True
+            )
+            st.session_state["uploaded_flag"] = True  # 업로드 완료 플래그 설정
+            st.success("CSVファイルがアップロードされました。")
+        else:
+            st.info("既にCSVデータがアップロードされています。新しいデータをアップロードするにはリロードしてください。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
         
@@ -178,6 +183,7 @@ with st.sidebar.form("add_engineer_form"):
             [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
         )
         st.success("エンジニア情報を追加しました。")
+
         # st.rerun()
 
 # 데이터 표시
