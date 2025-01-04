@@ -73,8 +73,6 @@ if uploaded_file is not None:
             )
             st.session_state["uploaded_flag"] = True  # 업로드 완료 플래그 설정
             st.success("CSVファイルがアップロードされました。")
-        else:
-            st.info("既にCSVデータがアップロードされています。新しいデータをアップロードするにはリロードしてください。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
         
