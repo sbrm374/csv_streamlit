@@ -153,6 +153,36 @@ def plot_completion_rate_with_slider(data, freq="D"):
 
     
 
+
+
+# エンジニア情報追加フォーム
+st.sidebar.subheader("エンジニア情報を追加")
+with st.sidebar.form("add_engineer_form"):
+    engineer_name = st.text_input("エンジニア名")
+    skill = st.text_input("スキル")
+    client_name = st.text_input("顧客名")
+    start_date = st.date_input("開始日")
+    end_date = st.date_input("終了日")
+    alert_hidden = st.checkbox("アラート非表示", value=False)
+    submitted = st.form_submit_button("追加")
+
+    if submitted:
+        # 새로운 데이터 추가
+        new_row = {
+            "エンジニア名": engineer_name,
+            "スキル": skill,
+            "顧客名": client_name,
+            "開始日": pd.to_datetime(start_date),
+            "終了日": pd.to_datetime(end_date),
+            "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
+            "アラート非表示": alert_hidden,
+        }
+        st.session_state["contracts"] = pd.concat(
+            [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
+        )
+        st.success("エンジニア情報を追加しました。")
+        st.rerun()
+
 # 데이터 표시
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
     ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "終了率グラフ"]
@@ -197,31 +227,3 @@ with tab_rate:
         plot_completion_rate_with_slider(contracts_data, freq="D")
     else:
         st.write("現在終了した契約がありません。")
-
-# エンジニア情報追加フォーム
-st.sidebar.subheader("エンジニア情報を追加")
-with st.sidebar.form("add_engineer_form"):
-    engineer_name = st.text_input("エンジニア名")
-    skill = st.text_input("スキル")
-    client_name = st.text_input("顧客名")
-    start_date = st.date_input("開始日")
-    end_date = st.date_input("終了日")
-    alert_hidden = st.checkbox("アラート非表示", value=False)
-    submitted = st.form_submit_button("追加")
-
-    if submitted:
-        # 새로운 데이터 추가
-        new_row = {
-            "エンジニア名": engineer_name,
-            "スキル": skill,
-            "顧客名": client_name,
-            "開始日": pd.to_datetime(start_date),
-            "終了日": pd.to_datetime(end_date),
-            "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
-            "アラート非表示": alert_hidden,
-        }
-        st.session_state["contracts"] = pd.concat(
-            [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
-        )
-        st.success("エンジニア情報を追加しました。")
-        st.rerun()
