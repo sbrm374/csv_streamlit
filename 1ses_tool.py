@@ -52,6 +52,7 @@ if "contracts" not in st.session_state:
             "アラート非表示": [],
         }
     )
+    st.session_state["uploaded_data"] = None  # 업로드된 데이터를 별도로 관리
 
 # 업로드된 파일 처리
 if uploaded_file is not None:
@@ -65,10 +66,9 @@ if uploaded_file is not None:
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
 
-        # 기존 데이터와 병합
-        st.session_state["contracts"] = pd.concat(
-            [st.session_state["contracts"], uploaded_data], ignore_index=True
-        )
+        # 업로드된 데이터를 세션 상태에 저장
+        st.session_state["uploaded_data"] = uploaded_data
+        st.session_state["contracts"] = uploaded_data  # 업로드된 데이터로 교체
         st.success("CSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
