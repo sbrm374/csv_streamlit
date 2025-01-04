@@ -157,15 +157,6 @@ def plot_completion_rate_with_slider(data, freq="D"):
     st.image(buf, caption="終了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
 
-
-새 데이터 추가 시, 데이터프레임이 두 번 렌더링되는 문제는 Streamlit의 st.rerun으로 인해 UI 전체가 다시 렌더링되면서 발생하는 것입니다. st.rerun 호출 이후에 UI가 초기화되면서 잠시 비어 있는 데이터프레임이 렌더링된 후, 세션 상태로 복원된 데이터프레임이 다시 표시됩니다.
-
-해결 방안
-st.rerun을 사용하지 않고 데이터프레임이 업데이트된 상태로 바로 렌더링되도록 코드를 수정할 수 있습니다. 아래는 수정된 코드입니다:
-
-수정된 코드:
-python
-コードをコピーする
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
 with st.sidebar.form("add_engineer_form"):
