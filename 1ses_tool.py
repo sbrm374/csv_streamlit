@@ -177,6 +177,8 @@ with st.sidebar.form("add_engineer_form"):
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": alert_hidden,
         }
+
+        # 세션 상태의 데이터프레임에 새로운 데이터 추가
         st.session_state["contracts"] = pd.concat(
             [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
         )
