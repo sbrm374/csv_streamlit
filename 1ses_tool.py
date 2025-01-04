@@ -40,18 +40,29 @@ st.sidebar.download_button(
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 
 # セッションステートの初期化
-if "contracts" not in st.session_state:
+if "contracts" not in st.session_state or uploaded_file is None:
     st.session_state["contracts"] = pd.DataFrame(
-        sample_data | {
-            "開始日": pd.to_datetime(sample_data["開始日"]),
-            "終了日": pd.to_datetime(sample_data["終了日"]),
-            "継続日数": [
-                (datetime.now() - pd.to_datetime(start)).days
-                for start in sample_data["開始日"]
-            ],
-            "アラート非表示": [False] * len(sample_data["エンジニア名"]),
-        }
+        columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
     )
+
+# アップロードされたファイルを処理
+if uploaded_file is not None:
+    try:
+        # CSV 읽기 (適切なエンコーディングを設定してください)
+        uploaded_data = pd.read_csv(uploaded_file, encoding="shift_jis")
+        uploaded_data["開始日"] = pd.to_datetime(uploaded_data["開始日"])
+        uploaded_data["終了日"] = pd.to_datetime(uploaded_data["終了日"])
+        uploaded_data["継続日数"] = [
+            (datetime.now() - start).days for start in uploaded_data["開始日"]
+        ]
+        uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
+
+        # 세션 상태에 데이터 저장
+        st.session_state["contracts"] = uploaded_data
+        st.success("CSVファイルがアップロードされました。")
+
+    except Exception as e:
+        st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
 
 # 지속률 계산 함수
 def calculate_continuity_rate(data):
