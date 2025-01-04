@@ -40,7 +40,7 @@ st.sidebar.download_button(
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 
 # セッションステートの初期化
-if "contracts" not in st.session_state or uploaded_file is None:
+if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
         columns=["エンジニア名", "スキル", "顧客名", "開始日", "終了日", "継続日数", "アラート非表示"]
     )
@@ -48,7 +48,7 @@ if "contracts" not in st.session_state or uploaded_file is None:
 # アップロードされたファイルを処理
 if uploaded_file is not None:
     try:
-        # CSV 읽기 (適切なエンコーディングを設定してください)
+        # CSV 읽기 (적절한 인코딩 설정 필요)
         uploaded_data = pd.read_csv(uploaded_file, encoding="shift_jis")
         uploaded_data["開始日"] = pd.to_datetime(uploaded_data["開始日"])
         uploaded_data["終了日"] = pd.to_datetime(uploaded_data["終了日"])
@@ -57,7 +57,7 @@ if uploaded_file is not None:
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
 
-        # 세션 상태에 데이터 저장
+        # 세션 상태 업데이트
         st.session_state["contracts"] = uploaded_data
         st.success("CSVファイルがアップロードされました。")
 
@@ -200,7 +200,7 @@ with st.sidebar.form("add_engineer_form"):
     submitted = st.form_submit_button("追加")
 
     if submitted:
-        # 새 행 생성
+        # 새로운 행 추가
         new_row = {
             "エンジニア名": engineer_name,
             "スキル": skill,
@@ -216,6 +216,6 @@ with st.sidebar.form("add_engineer_form"):
             [st.session_state["contracts"], pd.DataFrame([new_row])], ignore_index=True
         )
 
-        # 성공 메시지
+        # 성공 메시지 출력
         st.success("エンジニア情報を追加しました。")
         st.rerun()
