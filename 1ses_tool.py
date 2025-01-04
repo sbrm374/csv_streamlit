@@ -169,25 +169,30 @@ with st.sidebar.form("add_engineer_form"):
     submitted = st.form_submit_button("追加")
 
     if submitted:
-        # 新しいデータを生成
-        new_row = {
-            "エンジニア名": engineer_name,
-            "スキル": skill,
-            "顧客名": client_name,
-            "開始日": pd.to_datetime(start_date),
-            "終了日": pd.to_datetime(end_date),
-            "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
-            "アラート非表示": alert_hidden,
-        }
+        # 입력값 유효성 검사
+        if not (engineer_name and skill and client_name and start_date and end_date):
+            st.warning("すべての情報を入力してください。")
+        else:
+            # 新しいデータを生成
+            new_row = {
+                "エンジニア名": engineer_name,
+                "スキル": skill,
+                "顧客名": client_name,
+                "開始日": pd.to_datetime(start_date),
+                "終了日": pd.to_datetime(end_date),
+                "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
+                "アラート非表示": alert_hidden,
+            }
 
-        # 新しい行をセッション状態に追加
-        st.session_state["contracts"] = pd.concat(
-            [st.session_state["contracts"], pd.DataFrame([new_row])],
-            ignore_index=True,
-        )
+            # 新しい行をセッション状態に追加
+            st.session_state["contracts"] = pd.concat(
+                [st.session_state["contracts"], pd.DataFrame([new_row])],
+                ignore_index=True,
+            )
 
-        # データを更新した後、強制的に再レンダリング
-        st.rerun()
+            # データを更新した後、強制的に再レンダリング
+            st.success("エンジニア情報を追加しました。")
+            st.rerun()
 
 # データ表示タブ
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
