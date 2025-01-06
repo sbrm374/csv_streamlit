@@ -314,8 +314,8 @@ with tab_ongoing:
 with tab_completed:
     st.subheader("終了タブ: 継続が終了した契約")
     now = pd.Timestamp.now()
-    filtered_data = st.session_state["contracts"][st.session_state[
-        (st.session_state["contracts"]["終了日"] > datetime.now()) &
+    filtered_data = st.session_state["contracts"][
+        st.session_state[(st.session_state["contracts"]["終了日"] > datetime.now()) &
         (st.session_state["contracts"]["アラート非表示"] == False)
     ]
     
