@@ -238,8 +238,8 @@ with tab_all:
     st.write("st.data_editor呼び出し前のデータ型:")
     st.write(st.session_state["contracts"].dtypes)
 
-    # `st.data_editor`を表示して編集可能にする
-    st.session_state["contracts"] = st.data_editor(
+    # `st.data_editor`を使用して編集可能にする
+    edited_data = st.data_editor(
         st.session_state["contracts"],
         use_container_width=True,
         num_rows="static",
@@ -251,13 +251,20 @@ with tab_all:
         },
         key="editor",
     )
+        
+    # UIレンダリング用のデータフレームを作成
+    display_data = st.session_state["contracts"].copy()
+    for idx in display_data.index:
+        display_data.at[idx, "削除"] = st.checkbox(
+            label=f"削除 ({idx+1}行目)", 
+            value=st.session_state[f"delete_{idx}"], 
+            key=f"delete_checkbox_{idx}"
+        )
 
     # 削除ボタンを追加
     if st.button("選択した行を削除"):
         # `削除`列がTrueの行を削除
-        st.session_state["contracts"] = st.session_state["contracts"][
-            ~st.session_state["contracts"]["削除"]
-        ].reset_index(drop=True)
+        st.session_state["contracts"] = edited_data[~edited_data["削除"]].reset_index(drop=True)
         st.success("選択した行が削除されました。")
 
 # 最新タブ（アラート非表示を除外）
