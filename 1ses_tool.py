@@ -201,13 +201,46 @@ tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
 # 全体タブ（すべてのデータを表示）
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
-    st.dataframe(
-        st.session_state["contracts"],
-        use_container_width=True,
-        column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
-        },
-    )
+    delete_indices = []
+
+    # 各行にチェックボックスを追加
+    for index, row in st.session_state["contracts"].iterrows():
+        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(
+            [1, 2, 2, 2, 2, 2, 1, 1]
+        )
+        with col1:
+            delete = st.checkbox("削除", key=f"delete_{index}")
+            if delete:
+                delete_indices.append(index)
+        with col2:
+            st.write(row["エンジニア名"])
+        with col3:
+            st.write(row["スキル"])
+        with col4:
+            st.write(row["顧客名"])
+        with col5:
+            st.write(row["開始日"].strftime("%Y-%m-%d"))
+        with col6:
+            st.write(row["終了日"].strftime("%Y-%m-%d"))
+        with col7:
+            st.write(row["継続日数"])
+        with col8:
+            st.write("非表示" if row["アラート非表示"] else "表示中")
+            
+    # 削除ボタンを追加
+    if st.button("選択した行を削除"):
+        if delete_indices:
+            # 選択した行を削除
+            st.session_state["contracts"] = st.session_state["contracts"].drop(
+                delete_indices
+            ).reset_index(drop=True)
+            st.success("選択した行が削除されました。")
+        else:
+            st.warning("削除する行を選択してください。")
+            
+    # 更新されたデータの表示
+    st.subheader("更新後のデータフレーム")
+    st.dataframe(st.session_state["contracts"], use_container_width=True)
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
