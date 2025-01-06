@@ -245,13 +245,10 @@ with tab_all:
     # 削除ボタンを追加
     if st.button("選択した行を削除"):
         # `削除` 列がTrueの行を削除
-        st.session_state["contracts"] = edited_data[~edited_data["削除"]]
+        st.session_state["contracts"] = st.session_state["contracts"][~st.session_state["contracts"]["削除"]].reset_index(drop=True)
         # 削除列をリセット（Falseに戻す）
         st.session_state["contracts"]["削除"] = False
         st.success("選択した行が削除されました。")
-
-    # データエディタを更新
-    st.dataframe(st.session_state["contracts"], use_container_width=True)
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
