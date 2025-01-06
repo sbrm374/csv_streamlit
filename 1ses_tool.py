@@ -203,14 +203,17 @@ tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
 # 全体タブ（すべてのデータを表示）
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
-    st.dataframe(
+    edited_data = st.data_editor(
         st.session_state["contracts"],
         use_container_width=True,
+        num_rows="dynamic",
         column_config={
             "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
-            "削除": st.column_config.CheckboxColumn("削除", default=False)
+            "削除": st.column_config.CheckboxColumn("削除"),
         },
     )
+    # 編集されたデータをセッション状態に保存
+    st.session_state["contracts"] = edited_data
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
