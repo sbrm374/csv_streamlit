@@ -228,6 +228,11 @@ with tab_all:
     st.write("st.data_editor呼び出し前のデータ型:")
     st.write(st.session_state["contracts"].dtypes)
 
+    # チェックボックスの状態を別々に保存
+    if "edited_contracts" not in st.session_state:
+        # 初期状態で現在のcontractsデータを保存する
+        st.session_state["edited_contracts"] = st.session_state["contracts"].copy()
+        
     # `st.data_editor`を使用してデータを編集
     edited_data = st.data_editor(
         st.session_state["contracts"],
@@ -244,9 +249,16 @@ with tab_all:
     # 削除ボタンを追加
     if st.button("選択した行を削除"):
         # `削除` 列がTrueの行を削除
-        st.session_state["contracts"] = edited_df[~edited_df["削除"]].drop(columns=["削除"])
+        st.session_state["edited_contracts"] = st.session_state["edited_contracts"][
+            ~st.session_state["edited_contracts"]["削除"]
+        ]
         st.success("選択した行が削除されました。")
 
+    # ボタンを押すと session_state["contracts"] を更新
+    if st.button("変更内容を保存"):
+        st.session_state["contracts"] = st.session_state["edited_contracts"].copy()
+        st.success("変更内容が保存されました。")
+        
     # 更新されたデータフレームを表示
     st.subheader("更新後のデータフレーム")
     st.dataframe(st.session_state["contracts"], use_container_width=True)
