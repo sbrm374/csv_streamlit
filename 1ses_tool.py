@@ -172,12 +172,12 @@ if "engineer_name" not in st.session_state:
     reset_form_fields()
 
 with st.sidebar.form("add_engineer_form"):
-    engineer_name = st.text_input("エンジニア名", value="")  
-    skill = st.text_input("スキル", value="")  
-    client_name = st.text_input("顧客名", value="")  
-    start_date = st.date_input("開始日", value=None)  
-    end_date = st.date_input("終了日", value=None) 
-    alert_hidden = st.checkbox("アラート非表示", value=False)  
+    engineer_name = st.text_input("エンジニア名", value=st.session_state["engineer_name"], key="engineer_name")
+    skill = st.text_input("スキル", value=st.session_state["skill"], key="skill")
+    client_name = st.text_input("顧客名", value=st.session_state["client_name"], key="client_name")
+    start_date = st.date_input("開始日", value=st.session_state["start_date"], key="start_date")
+    end_date = st.date_input("終了日", value=st.session_state["end_date"], key="end_date")
+    alert_hidden = st.checkbox("アラート非表示", value=st.session_state["alert_hidden"], key="alert_hidden")
     submitted = st.form_submit_button("追加")
 
 if submitted:
@@ -202,6 +202,9 @@ if submitted:
             ignore_index=True,
         )
         st.session_state["contracts"] = updated_contracts
+
+        # 入力フィールドを初期化
+        reset_form_fields()
 
         # 追加完了メッセージ
         st.success("エンジニア情報を追加しました。")
