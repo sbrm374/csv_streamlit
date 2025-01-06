@@ -250,16 +250,16 @@ with tab_all:
         st.session_state["contracts"]["削除"] = False
         st.success("選択した行が削除されました。")
 
-    # データエディタを更新
-    st.data_editor(
-        st.session_state["contracts"],
-        use_container_width=True,
-        num_rows="dynamic",
-        column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
-            "削除": st.column_config.CheckboxColumn("削除"),
-        },
-    )
+    # # データエディタを更新
+    # st.data_editor(
+    #     st.session_state["contracts"],
+    #     use_container_width=True,
+    #     num_rows="dynamic",
+    #     column_config={
+    #         "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
+    #         "削除": st.column_config.CheckboxColumn("削除"),
+    #     },
+    # )
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
