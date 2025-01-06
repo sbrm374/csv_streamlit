@@ -43,7 +43,7 @@ uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロード�
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
         {
-            "削除": [],
+            "削除":pd.Series(dtype=bool),
             "エンジニア名": [],
             "スキル": [],
             "顧客名": [],
