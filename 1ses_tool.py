@@ -43,16 +43,20 @@ uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロード�
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
         {
-            "削除": [],
-            "エンジニア名": [],
-            "スキル": [],
-            "顧客名": [],
-            "開始日": [],
-            "終了日": [],
-            "継続日数": [],
-            "アラート非表示": [],
+            "削除": pd.Series(dtype=bool),  # 明示的にbool型で初期化
+            "エンジニア名": pd.Series(dtype=str),
+            "スキル": pd.Series(dtype=str),
+            "顧客名": pd.Series(dtype=str),
+            "開始日": pd.Series(dtype="datetime64[ns]"),
+            "終了日": pd.Series(dtype="datetime64[ns]"),
+            "継続日数": pd.Series(dtype=int),
+            "アラート非表示": pd.Series(dtype=bool),
         }
     )
+
+# 초기화된 데이터 타입 출력
+st.write("初期化時のデータ型:")
+st.write(st.session_state["contracts"].dtypes)
 
 if "render_flag" not in st.session_state:
     st.session_state["render_flag"] = False  # レンダリング制御フラグの初期化
@@ -70,12 +74,28 @@ if uploaded_file is not None:
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
         uploaded_data["削除"] = [False] * len(uploaded_data)
 
+        # データ型を明示的に変換
+        uploaded_data["削除"] = uploaded_data["削除"].astype(bool)
+        uploaded_data["アラート非表示"] = uploaded_data["アラート非表示"].astype(bool)
+
+        # 업로드 후 데이터 타입 출력
+        st.write("アップロード後のデータ型:")
+        st.write(uploaded_data.dtypes)
+
         # すでにアップロードされたデータか確認
         if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
             # アップロードされたデータを既存データにマージ
             st.session_state["contracts"] = pd.concat(
                 [st.session_state["contracts"], uploaded_data], ignore_index=True
             )
+            # 병합 후 데이터 타입 보장
+            st.session_state["contracts"]["削除"] = st.session_state["contracts"]["削除"].astype(bool)
+            st.session_state["contracts"]["アラート非表示"] = st.session_state["contracts"]["アラート非表示"].astype(bool)
+
+            # 병합 후 데이터 타입 출력
+            st.write("マージ後のデータ型:")
+            st.write(st.session_state["contracts"].dtypes)
+
             st.session_state["uploaded_flag"] = True  # アップロード完了フラグを設定
             st.success("CSVファイルがアップロードされました。")
     except Exception as e:
@@ -203,6 +223,12 @@ tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
 # 全体タブ（すべてのデータを表示）
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
+
+    # `st.data_editor` 호출 전 데이터 타입 출력
+    st.write("st.data_editor呼び出し前のデータ型:")
+    st.write(st.session_state["contracts"].dtypes)
+
+    # `st.data_editor`を使用してデータを編集
     edited_data = st.data_editor(
         st.session_state["contracts"],
         use_container_width=True,
@@ -214,6 +240,16 @@ with tab_all:
     )
     # 編集されたデータをセッション状態に保存
     st.session_state["contracts"] = edited_data
+
+    # 削除ボタンを追加
+    if st.button("選択した行を削除"):
+        # `削除` 列がTrueの行を削除
+        st.session_state["contracts"] = edited_df[~edited_df["削除"]].drop(columns=["削除"])
+        st.success("選択した行が削除されました。")
+
+    # 更新されたデータフレームを表示
+    st.subheader("更新後のデータフレーム")
+    st.dataframe(st.session_state["contracts"], use_container_width=True)
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
