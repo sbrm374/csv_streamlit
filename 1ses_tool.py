@@ -39,19 +39,9 @@ st.sidebar.download_button(
 # CSVファイルをアップロード
 uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
 
-# セッション状態を初期化
+# セッション 상태를 초기화
 if "contracts" not in st.session_state:
-    st.session_state["contracts"] = pd.DataFrame(
-        {
-            "エンジニア名": [],
-            "スキル": [],
-            "顧客名": [],
-            "開始日": [],
-            "終了日": [],
-            "継続日数": [],
-            "アラート非表示": [],
-        }
-    )
+    st.session_state["contracts"] = pd.DataFrame()
 
 if "render_flag" not in st.session_state:
     st.session_state["render_flag"] = False  # レンダリング制御フラグの初期化
@@ -63,6 +53,10 @@ if uploaded_file is not None:
         uploaded_data = pd.read_csv(uploaded_file, encoding="shift_jis")
         uploaded_data["開始日"] = pd.to_datetime(uploaded_data["開始日"])
         uploaded_data["終了日"] = pd.to_datetime(uploaded_data["終了日"])
+
+        # "削除" 列を追加
+        uploaded_data["削除"] = False
+        
         uploaded_data["継続日数"] = [
             (datetime.now() - start).days for start in uploaded_data["開始日"]
         ]
@@ -78,6 +72,26 @@ if uploaded_file is not None:
             st.success("CSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
+
+# データ表示と削除機能
+if not st.session_state["contracts"].empty:
+    st.subheader("アップロードされたデータ")
+
+    # Streamlit データエディタでデータを表示
+    edited_df = st.experimental_data_editor(
+        st.session_state["contracts"], num_rows="dynamic", use_container_width=True
+    )
+
+    # "削除" 列の値がTrueの行を削除
+    if st.button("選択した行を削除"):
+        st.session_state["contracts"] = edited_df[~edited_df["削除"]].drop(columns=["削除"])
+        st.success("選択した行が削除されました。")
+
+    # 更新されたデータの表示
+    st.subheader("更新後のデータフレーム")
+    st.dataframe(st.session_state["contracts"], use_container_width=True)
+else:
+    st.info("CSVファイルをアップロードしてください。")
 
 # 継続率を計算する関数
 def calculate_continuity_rate(data):
