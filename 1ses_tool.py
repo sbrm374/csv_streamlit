@@ -1,4 +1,3 @@
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,43 +18,13 @@ plt.rcParams['axes.unicode_minus'] = False  # マイナス記号が崩れない�
 st.title("SES事業継続率管理ツール")
 
 # サンプルデータ
-if "contracts" not in st.session_state:
-    st.session_state["contracts"] = pd.DataFrame({
-        "エンジニア名": ["山田太郎", "佐藤花子", "鈴木一郎", "田中次郎"],
-        "スキル": ["Python, AWS", "Java, Spring", "React, JavaScript", "C#, .NET"],
-        "顧客名": ["顧客A", "顧客B", "顧客C", "顧客D"],
-        "開始日": ["2023-01-01", "2023-05-01", "2023-06-01", "2023-02-01"],
-        "終了日": ["2023-12-31", "2024-04-30", "2023-12-31", "2024-01-31"],
-    })
-
-# AgGrid設定
-gb = GridOptionsBuilder.from_dataframe(st.session_state["contracts"])
-gb.configure_selection(selection_mode="multiple", use_checkbox=True)  # check-box追加
-grid_options = gb.build()
-
-# AgGridレンダリング
-st.subheader("契約管理")
-response = AgGrid(
-    st.session_state["contracts"],
-    gridOptions=grid_options,
-    update_mode=GridUpdateMode.SELECTION_CHANGED,
-    height=300,
-    allow_unsafe_jscode=True,
-    theme="streamlit",  #テーマ設定
-)
-
-# 選択した行を削除
-selected_rows = response["selected_rows"]
-if st.button("選択したデータを削除"):
-    if selected_rows:
-        # 選択した行を削除
-        st.session_state["contracts"] = st.session_state["contracts"].drop(
-            index=[row["_selectedRowNodeInfo"]["nodeIndex"] for row in selected_rows]
-        ).reset_index(drop=True)
-        st.success("選択したデータが削除されました。")
-        st.experimental_rerun()
-    else:
-        st.warning("削除するデータを選択してください。")
+sample_data = {
+    "エンジニア名": ["山田太郎", "佐藤花子", "鈴木一郎", "田中次郎"],
+    "スキル": ["Python, AWS", "Java, Spring", "React, JavaScript", "C#, .NET"],
+    "顧客名": ["顧客A", "顧客B", "顧客C", "顧客D"],
+    "開始日": ["2023-01-01", "2023-05-01", "2023-06-01", "2023-02-01"],
+    "終了日": ["2023-12-31", "2024-04-30", "2023-12-31", "2024-01-31"],
+}
 
 # サンプルCSVをダウンロード可能にする
 sample_df = pd.DataFrame(sample_data)
@@ -223,43 +192,6 @@ if submitted:
 
         # 追加完了メッセージ
         st.success("エンジニア情報を追加しました。")
-
-st.subheader("データの管理")
-
-# 삭제 대상 데이터를 추적할 딕셔너리 생성
-if "selected_rows" not in st.session_state:
-    st.session_state["selected_rows"] = []
-
-# 데이터와 체크박스 표시
-with st.form("delete_form"):
-    selected_rows = []
-    for index, row in st.session_state["contracts"].iterrows():
-        col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
-        
-        with col1:
-            # 삭제 체크박스
-            selected = st.checkbox("", key=f"delete_{index}")
-            if selected:
-                selected_rows.append(index)
-        
-        with col2:
-            st.write(row["エンジニア名"])
-        with col3:
-            st.write(row["スキル"])
-        with col4:
-            st.write(row["顧客名"])
-        with col5:
-            st.write(row["終了日"].date())
-    
-    # 삭제 버튼
-    delete_button = st.form_submit_button("選択したデータを削除")
-
-# 체크된 데이터를 삭제
-if delete_button and selected_rows:
-    st.session_state["contracts"] = st.session_state["contracts"].drop(selected_rows).reset_index(drop=True)
-    st.success(f"{len(selected_rows)} 件のデータを削除しました。")
-    st.rerun()  # UI 갱신
-            
 
 # データ表示タブ
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
