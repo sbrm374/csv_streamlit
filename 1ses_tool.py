@@ -1,3 +1,4 @@
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -18,13 +19,43 @@ plt.rcParams['axes.unicode_minus'] = False  # マイナス記号が崩れない�
 st.title("SES事業継続率管理ツール")
 
 # サンプルデータ
-sample_data = {
-    "エンジニア名": ["山田太郎", "佐藤花子", "鈴木一郎", "田中次郎"],
-    "スキル": ["Python, AWS", "Java, Spring", "React, JavaScript", "C#, .NET"],
-    "顧客名": ["顧客A", "顧客B", "顧客C", "顧客D"],
-    "開始日": ["2023-01-01", "2023-05-01", "2023-06-01", "2023-02-01"],
-    "終了日": ["2023-12-31", "2024-04-30", "2023-12-31", "2024-01-31"],
-}
+if "contracts" not in st.session_state:
+    st.session_state["contracts"] = pd.DataFrame({
+        "エンジニア名": ["山田太郎", "佐藤花子", "鈴木一郎", "田中次郎"],
+        "スキル": ["Python, AWS", "Java, Spring", "React, JavaScript", "C#, .NET"],
+        "顧客名": ["顧客A", "顧客B", "顧客C", "顧客D"],
+        "開始日": ["2023-01-01", "2023-05-01", "2023-06-01", "2023-02-01"],
+        "終了日": ["2023-12-31", "2024-04-30", "2023-12-31", "2024-01-31"],
+    })
+
+# AgGrid設定
+gb = GridOptionsBuilder.from_dataframe(st.session_state["contracts"])
+gb.configure_selection(selection_mode="multiple", use_checkbox=True)  # check-box追加
+grid_options = gb.build()
+
+# AgGridレンダリング
+st.subheader("契約管理")
+response = AgGrid(
+    st.session_state["contracts"],
+    gridOptions=grid_options,
+    update_mode=GridUpdateMode.SELECTION_CHANGED,
+    height=300,
+    allow_unsafe_jscode=True,
+    theme="streamlit",  #テーマ設定
+)
+
+# 選択した行を削除
+selected_rows = response["selected_rows"]
+if st.button("選択したデータを削除"):
+    if selected_rows:
+        # 選択した行を削除
+        st.session_state["contracts"] = st.session_state["contracts"].drop(
+            index=[row["_selectedRowNodeInfo"]["nodeIndex"] for row in selected_rows]
+        ).reset_index(drop=True)
+        st.success("選択したデータが削除されました。")
+        st.experimental_rerun()
+    else:
+        st.warning("削除するデータを選択してください。")
 
 # サンプルCSVをダウンロード可能にする
 sample_df = pd.DataFrame(sample_data)
