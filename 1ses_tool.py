@@ -251,16 +251,7 @@ with tab_all:
         },
         key="editor",
     )
-        
-    # UIレンダリング用のデータフレームを作成
-    display_data = st.session_state["contracts"].copy()
-    for idx in display_data.index:
-        display_data.at[idx, "削除"] = st.checkbox(
-            label=f"削除 ({idx+1}行目)", 
-            value=st.session_state[f"delete_{idx}"], 
-            key=f"delete_checkbox_{idx}"
-        )
-
+    
     # 削除ボタンを追加
     if st.button("選択した行を削除"):
         # `削除`列がTrueの行を削除
