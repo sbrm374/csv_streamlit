@@ -156,6 +156,7 @@ def plot_completion_rate_with_slider(data, freq="D"):
     st.image(buf, caption="終了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
 
+# エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
 
 # 入力フィールド初期化関数
@@ -163,8 +164,8 @@ def reset_form_fields():
     st.session_state["engineer_name"] = ""
     st.session_state["skill"] = ""
     st.session_state["client_name"] = ""
-    st.session_state["start_date"] = None
-    st.session_state["end_date"] = None
+    st.session_state["start_date"] = datetime.now().date()
+    st.session_state["end_date"] = datetime.now().date()
     st.session_state["alert_hidden"] = False
 
 # セッション状態の初期化
@@ -197,13 +198,11 @@ if submitted:
         }
 
         # セッション状態に新しいデータを追加
-        updated_contracts = pd.concat(
+        st.session_state["contracts"] = pd.concat(
             [st.session_state["contracts"], pd.DataFrame([new_row])],
             ignore_index=True,
         )
-        st.session_state["contracts"] = updated_contracts
-
-        # 入力フィールドを初期化
+        
         reset_form_fields()
 
         # 追加完了メッセージ
