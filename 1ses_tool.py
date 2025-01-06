@@ -258,10 +258,6 @@ with tab_all:
     if st.button("変更内容を保存"):
         st.session_state["contracts"] = st.session_state["edited_contracts"].copy()
         st.success("変更内容が保存されました。")
-        
-    # 更新されたデータフレームを表示
-    st.subheader("更新後のデータフレーム")
-    st.dataframe(st.session_state["contracts"], use_container_width=True)
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
