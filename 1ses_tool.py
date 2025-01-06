@@ -251,49 +251,91 @@ with tab_all:
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
     st.subheader("最新タブ: アラート表示中の契約")
-    latest_data = st.session_state["contracts"][
-        st.session_state["contracts"]["アラート非表示"] == False
-    ]
-    st.dataframe(
-        latest_data,
+    filtered_data = st.session_state["contracts"][st.session_state["contracts"]["アラート非表示"] == False]
+
+    edited_latest = st.data_editor(
+        filtered_data,
         use_container_width=True,
+        num_rows="static",
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
-            "削除": st.column_config.CheckboxColumn("削除", default=False)
+            "削除": st.column_config.CheckboxColumn(
+                "削除",
+                help="削除したい行を選択してください。",
+            ),
+            "アラート非表示": st.column_config.CheckboxColumn(
+                "アラート非表示",
+                disabled=True,
+                help="この列は編集できません。",
+            ),
         },
+        key="editor_latest",
     )
+
+    if st.button("選択した行を削除", key="delete_latest"):
+        st.session_state["contracts"] = st.session_state["contracts"][
+            ~st.session_state["contracts"].index.isin(edited_latest[edited_latest["削除"]].index)
+        ].reset_index(drop=True)
+        st.rerun()
 
 # 継続タブ
 with tab_ongoing:
     st.subheader("継続タブ: 継続中の契約")
-    ongoing_data = st.session_state["contracts"][
-        (st.session_state["contracts"]["終了日"] > datetime.now()) &
-        (st.session_state["contracts"]["アラート非表示"] == False)
-    ]
-    st.dataframe(
-        ongoing_data,
+    now = pd.Timestamp.now()
+    filtered_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] > now]
+
+    edited_ongoing = st.data_editor(
+        filtered_data,
         use_container_width=True,
+        num_rows="static",
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
-            "削除": st.column_config.CheckboxColumn("削除", default=False)
+            "削除": st.column_config.CheckboxColumn(
+                "削除",
+                help="削除したい行を選択してください。",
+            ),
+            "アラート非表示": st.column_config.CheckboxColumn(
+                "アラート非表示",
+                disabled=True,
+                help="この列は編集できません。",
+            ),
         },
+        key="editor_ongoing",
     )
+
+    if st.button("選択した行を削除", key="delete_ongoing"):
+        st.session_state["contracts"] = st.session_state["contracts"][
+            ~st.session_state["contracts"].index.isin(edited_ongoing[edited_ongoing["削除"]].index)
+        ].reset_index(drop=True)
+        st.rerun()
 
 # 終了タブ
 with tab_completed:
     st.subheader("終了タブ: 継続が終了した契約")
-    completed_data = st.session_state["contracts"][
-        (st.session_state["contracts"]["終了日"] <= datetime.now()) &
-        (st.session_state["contracts"]["アラート非表示"] == False)
-    ]
-    st.dataframe(
-        completed_data,
+    now = pd.Timestamp.now()
+    filtered_data = st.session_state["contracts"][st.session_state["contracts"]["終了日"] <= now]
+
+    edited_completed = st.data_editor(
+        filtered_data,
         use_container_width=True,
+        num_rows="static",
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
-            "削除": st.column_config.CheckboxColumn("削除", default=False)
+            "削除": st.column_config.CheckboxColumn(
+                "削除",
+                help="削除したい行を選択してください。",
+            ),
+            "アラート非表示": st.column_config.CheckboxColumn(
+                "アラート非表示",
+                disabled=True,
+                help="この列は編集できません。",
+            ),
         },
+        key="editor_completed",
     )
+
+    if st.button("選択した行を削除", key="delete_completed"):
+        st.session_state["contracts"] = st.session_state["contracts"][
+            ~st.session_state["contracts"].index.isin(edited_completed[edited_completed["削除"]].index)
+        ].reset_index(drop=True)
+        st.rerun()
 
 # 終了率グラフタブ
 with tab_rate:
