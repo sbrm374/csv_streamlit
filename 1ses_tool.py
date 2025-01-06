@@ -179,7 +179,7 @@ def reset_form_inputs():
         "alert_hidden": False,
     }
 
-with st.sidebar.form("add_engineer_form"):
+with st.sidebar.form("add_engineer_form", clear_on_submit=True):
     engineer_name = st.text_input("エンジニア名", value=st.session_state["form_inputs"]["engineer_name"])
     skill = st.text_input("スキル", value=st.session_state["form_inputs"]["skill"])
     client_name = st.text_input("顧客名", value=st.session_state["form_inputs"]["client_name"])
