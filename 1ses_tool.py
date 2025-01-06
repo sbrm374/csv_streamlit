@@ -54,10 +54,6 @@ if "contracts" not in st.session_state:
         }
     )
 
-# 초기화된 데이터 타입 출력
-st.write("初期化時のデータ型:")
-st.write(st.session_state["contracts"].dtypes)
-
 if "render_flag" not in st.session_state:
     st.session_state["render_flag"] = False  # レンダリング制御フラグの初期化
 
@@ -78,23 +74,15 @@ if uploaded_file is not None:
         uploaded_data["削除"] = uploaded_data["削除"].astype(bool)
         uploaded_data["アラート非表示"] = uploaded_data["アラート非表示"].astype(bool)
 
-        # 업로드 후 데이터 타입 출력
-        st.write("アップロード後のデータ型:")
-        st.write(uploaded_data.dtypes)
-
         # すでにアップロードされたデータか確認
         if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
             # アップロードされたデータを既存データにマージ
             st.session_state["contracts"] = pd.concat(
                 [st.session_state["contracts"], uploaded_data], ignore_index=True
             )
-            # 병합 후 데이터 타입 보장
+            # データのマージ後にデータ型を保証する
             st.session_state["contracts"]["削除"] = st.session_state["contracts"]["削除"].astype(bool)
             st.session_state["contracts"]["アラート非表示"] = st.session_state["contracts"]["アラート非表示"].astype(bool)
-
-            # 병합 후 데이터 타입 출력
-            st.write("マージ後のデータ型:")
-            st.write(st.session_state["contracts"].dtypes)
 
             st.session_state["uploaded_flag"] = True  # アップロード完了フラグを設定
             st.success("CSVファイルがアップロードされました。")
@@ -233,10 +221,6 @@ with tab_all:
             "顧客名": ["顧客A", "顧客B"],
             "削除": [False, False],
         })
-
-    # `st.data_editor` 호출 전 데이터 타입 출력
-    st.write("st.data_editor呼び出し前のデータ型:")
-    st.write(st.session_state["contracts"].dtypes)
 
     # `st.data_editor`を使用して編集可能にする
     edited_data = st.data_editor(
