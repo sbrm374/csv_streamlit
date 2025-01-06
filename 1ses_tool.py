@@ -68,7 +68,7 @@ if uploaded_file is not None:
             (datetime.now() - start).days for start in uploaded_data["開始日"]
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
-        uploaded_data["削除"] = [False]
+        uploaded_data["削除"] = [False] * len(uploaded_data)
 
         # すでにアップロードされたデータか確認
         if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
