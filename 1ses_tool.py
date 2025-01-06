@@ -225,40 +225,40 @@ tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
 
-    # 初回のみ "edited_contracts" を初期化
-    if "edited_contracts" not in st.session_state:
-        st.session_state["edited_contracts"] = st.session_state["contracts"].copy()
+    # 初回のみ "contracts" を初期化
+    if "contracts" not in st.session_state:
+        st.session_state["contracts"] = pd.DataFrame({
+            "エンジニア名": ["山田太郎", "佐藤花子"],
+            "スキル": ["Python", "Java"],
+            "顧客名": ["顧客A", "顧客B"],
+            "削除": [False, False],
+        })
 
     # `st.data_editor` 호출 전 데이터 타입 출력
     st.write("st.data_editor呼び出し前のデータ型:")
     st.write(st.session_state["contracts"].dtypes)
 
     # `st.data_editor`を表示して編集可能にする
-    edited_data = st.data_editor(
+    st.session_state["contracts"] = st.data_editor(
         st.session_state["contracts"],
         use_container_width=True,
         num_rows="static",
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
             "削除": st.column_config.CheckboxColumn(
                 "削除",
                 help="削除したい行を選択してください。",
             ),
         },
+        key="editor",
     )
 
     # 削除ボタンを追加
     if st.button("選択した行を削除"):
         # `削除`列がTrueの行を削除
-        st.session_state["edited_contracts"] = edited_data[~edited_data["削除"]].reset_index(drop=True)
-        st.session_state["contracts"] = st.session_state["edited_contracts"].copy()
-        st.rerun()
+        st.session_state["contracts"] = st.session_state["contracts"][
+            ~st.session_state["contracts"]["削除"]
+        ].reset_index(drop=True)
         st.success("選択した行が削除されました。")
-
-    # 버튼을 눌렀을 때 session_state["contracts"] 업데이트
-    if st.button("変更内容を保存"):
-        st.session_state["contracts"] = st.session_state["edited_contracts"].copy()
-        st.success("変更内容が保存されました。")
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
