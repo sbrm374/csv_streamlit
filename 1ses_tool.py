@@ -156,15 +156,14 @@ def plot_completion_rate_with_slider(data, freq="D"):
     st.image(buf, caption="終了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
 
-# エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
 with st.sidebar.form("add_engineer_form"):
-    engineer_name = st.text_input("エンジニア名")
-    skill = st.text_input("スキル")
-    client_name = st.text_input("顧客名")
-    start_date = st.date_input("開始日")
-    end_date = st.date_input("終了日")
-    alert_hidden = st.checkbox("アラート非表示", value=False)
+    engineer_name = st.text_input("エンジニア名", value="")  
+    skill = st.text_input("スキル", value="")  
+    client_name = st.text_input("顧客名", value="")  
+    start_date = st.date_input("開始日", value=None)  
+    end_date = st.date_input("終了日", value=None) 
+    alert_hidden = st.checkbox("アラート非表示", value=False)  
     submitted = st.form_submit_button("追加")
 
 if submitted:
