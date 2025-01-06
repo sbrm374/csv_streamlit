@@ -158,34 +158,13 @@ def plot_completion_rate_with_slider(data, freq="D"):
 
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
-
-if "form_inputs" not in st.session_state:
-    st.session_state["form_inputs"] = {
-        "engineer_name": "",
-        "skill": "",
-        "client_name": "",
-        "start_date": None,
-        "end_date": None,
-        "alert_hidden": False,
-    }
-
-def reset_form_inputs():
-    st.session_state["form_inputs"] = {
-        "engineer_name": "",
-        "skill": "",
-        "client_name": "",
-        "start_date": None,
-        "end_date": None,
-        "alert_hidden": False,
-    }
-
 with st.sidebar.form("add_engineer_form", clear_on_submit=True):
-    engineer_name = st.text_input("エンジニア名", value=st.session_state["form_inputs"]["engineer_name"])
-    skill = st.text_input("スキル", value=st.session_state["form_inputs"]["skill"])
-    client_name = st.text_input("顧客名", value=st.session_state["form_inputs"]["client_name"])
-    start_date = st.date_input("開始日", value=st.session_state["form_inputs"]["start_date"])
-    end_date = st.date_input("終了日", value=st.session_state["form_inputs"]["end_date"])
-    alert_hidden = st.checkbox("アラート非表示", value=st.session_state["form_inputs"]["alert_hidden"])
+    engineer_name = st.text_input("エンジニア名")
+    skill = st.text_input("スキル")
+    client_name = st.text_input("顧客名")
+    start_date = st.date_input("開始日")
+    end_date = st.date_input("終了日")
+    alert_hidden = st.checkbox("アラート非表示", value=False)
     submitted = st.form_submit_button("追加")
 
 if submitted:
@@ -203,13 +182,13 @@ if submitted:
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": alert_hidden,
         }
+
+        # セッション状態に新しいデータを追加
         updated_contracts = pd.concat(
             [st.session_state["contracts"], pd.DataFrame([new_row])],
             ignore_index=True,
         )
         st.session_state["contracts"] = updated_contracts
-
-        reset_form_inputs()
 
         # 追加完了メッセージ
         st.success("エンジニア情報を追加しました。")
