@@ -228,13 +228,30 @@ with tab_all:
     st.write("st.data_editor呼び出し前のデータ型:")
     st.write(st.session_state["contracts"].dtypes)
 
-    # チェックボックスの状態を別々に保存
-    if "edited_contracts" not in st.session_state:
-        # 初期状態で現在のcontractsデータを保存する
-        st.session_state["edited_contracts"] = st.session_state["contracts"].copy()
-        
-    # `st.data_editor`を使用してデータを編集
+    # `st.data_editor`を表示して編集可能にする
     edited_data = st.data_editor(
+        st.session_state["contracts"],
+        use_container_width=True,
+        num_rows="dynamic",
+        column_config={
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
+            "削除": st.column_config.CheckboxColumn(
+                "削除",
+                help="削除したい行を選択してください。",
+            ),
+        },
+    )
+
+    # 削除ボタンを追加
+    if st.button("選択した行を削除"):
+        # `削除` 列がTrueの行を削除
+        st.session_state["contracts"] = edited_data[~edited_data["削除"]]
+        # 削除列をリセット（Falseに戻す）
+        st.session_state["contracts"]["削除"] = False
+        st.success("選択した行が削除されました。")
+
+    # データエディタを更新
+    st.data_editor(
         st.session_state["contracts"],
         use_container_width=True,
         num_rows="dynamic",
@@ -243,25 +260,6 @@ with tab_all:
             "削除": st.column_config.CheckboxColumn("削除"),
         },
     )
-    # 編集されたデータをセッション状態に保存
-    st.session_state["contracts"] = edited_data
-
-    # 削除ボタンを追加
-    if st.button("選択した行を削除"):
-        # `削除` 列がTrueの行を削除
-        st.session_state["edited_contracts"] = st.session_state["edited_contracts"][
-            ~st.session_state["edited_contracts"]["削除"]
-        ]
-        st.success("選択した行が削除されました。")
-
-    # ボタンを押すと session_state["contracts"] を更新
-    if st.button("変更内容を保存"):
-        st.session_state["contracts"] = st.session_state["edited_contracts"].copy()
-        st.success("変更内容が保存されました。")
-
-    # 更新されたデータフレームを表示
-    st.subheader("更新後のデータフレーム")
-    st.dataframe(st.session_state["contracts"], use_container_width=True)
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
