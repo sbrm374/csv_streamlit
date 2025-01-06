@@ -207,7 +207,7 @@ for index, row in st.session_state["contracts"].iterrows():
             # 선택한 데이터를 삭제
             st.session_state["contracts"] = st.session_state["contracts"].drop(index).reset_index(drop=True)
             st.success(f"エンジニア情報「{row['エンジニア名']}」を削除しました。")
-            st.experimental_rerun()  # UI 갱신
+            st.rerun()  # UI 갱신
 
 # データ表示タブ
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
