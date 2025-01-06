@@ -203,13 +203,29 @@ tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
 # 全体タブ（すべてのデータを表示）
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
-    st.dataframe(
+
+    # `st.data_editor`を使用してデータを編集してチェックボックス列を追加する
+    edited_df = st.data_editor(
         st.session_state["contracts"],
         use_container_width=True,
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
+            "削除": st.column_config.CheckboxColumn(
+                "削除",
+                help="削除したい行を選択してください。",
+            ),
         },
     )
+
+    # 削除ボタンを追加
+    if st.button("選択した行を削除"):
+        # `削除` 列がTrueの行を削除
+        st.session_state["contracts"] = edited_df[~edited_df["削除"]].drop(columns=["削除"])
+        st.success("選択した行が削除されました。")
+
+    # 更新されたデータフレームを表示
+    st.subheader("更新後のデータフレーム")
+    st.dataframe(st.session_state["contracts"], use_container_width=True)
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
