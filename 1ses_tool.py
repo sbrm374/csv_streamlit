@@ -157,6 +157,20 @@ def plot_completion_rate_with_slider(data, freq="D"):
     buf.close()
 
 st.sidebar.subheader("エンジニア情報を追加")
+
+# 入力フィールド初期化関数
+def reset_form_fields():
+    st.session_state["engineer_name"] = ""
+    st.session_state["skill"] = ""
+    st.session_state["client_name"] = ""
+    st.session_state["start_date"] = None
+    st.session_state["end_date"] = None
+    st.session_state["alert_hidden"] = False
+
+# セッション状態の初期化
+if "engineer_name" not in st.session_state:
+    reset_form_fields()
+
 with st.sidebar.form("add_engineer_form"):
     engineer_name = st.text_input("エンジニア名", value="")  
     skill = st.text_input("スキル", value="")  
