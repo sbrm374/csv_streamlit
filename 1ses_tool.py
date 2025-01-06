@@ -203,6 +203,7 @@ if submitted:
             "終了日": pd.to_datetime(end_date),
             "継続日数": (datetime.now() - pd.to_datetime(start_date)).days,
             "アラート非表示": alert_hidden,
+            "削除": False,
         }
 
         # セッション状態に新しいデータを追加
