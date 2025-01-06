@@ -158,43 +158,23 @@ def plot_completion_rate_with_slider(data, freq="D"):
 
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
-
-# 入力フィールド初期化関数
-def reset_form_fields():
-    if "engineer_name" in st.session_state:
-        st.session_state["engineer_name"] = ""
-    if "skill" in st.session_state:
-        st.session_state["skill"] = ""
-    if "client_name" in st.session_state:
-        st.session_state["client_name"] = ""
-    if "start_date" in st.session_state:
-        st.session_state["start_date"] = datetime.now().date()
-    if "end_date" in st.session_state:
-        st.session_state["end_date"] = datetime.now().date()
-    if "alert_hidden" in st.session_state:
-        st.session_state["alert_hidden"] = False
-
-# セッション状態の初期化
-if "engineer_name" not in st.session_state:
-    st.session_state["engineer_name"] = ""
-if "skill" not in st.session_state:
-    st.session_state["skill"] = ""
-if "client_name" not in st.session_state:
-    st.session_state["client_name"] = ""
-if "start_date" not in st.session_state:
-    st.session_state["start_date"] = datetime.now().date()
-if "end_date" not in st.session_state:
-    st.session_state["end_date"] = datetime.now().date()
-if "alert_hidden" not in st.session_state:
-    st.session_state["alert_hidden"] = False
+if "input_fields" not in st.session_state:
+    st.session_state["input_fields"] = {
+        "engineer_name": "",
+        "skill": "",
+        "client_name": "",
+        "start_date": None,
+        "end_date": None,
+        "alert_hidden": False,
+    }
 
 with st.sidebar.form("add_engineer_form"):
-    engineer_name = st.text_input("エンジニア名", value=st.session_state["engineer_name"], key="engineer_name")
-    skill = st.text_input("スキル", value=st.session_state["skill"], key="skill")
-    client_name = st.text_input("顧客名", value=st.session_state["client_name"], key="client_name")
-    start_date = st.date_input("開始日", value=st.session_state["start_date"], key="start_date")
-    end_date = st.date_input("終了日", value=st.session_state["end_date"], key="end_date")
-    alert_hidden = st.checkbox("アラート非表示", value=st.session_state["alert_hidden"], key="alert_hidden")
+    engineer_name = st.text_input("エンジニア名", value=st.session_state["input_fields"]["engineer_name"])
+    skill = st.text_input("スキル", value=st.session_state["input_fields"]["skill"])
+    client_name = st.text_input("顧客名", value=st.session_state["input_fields"]["client_name"])
+    start_date = st.date_input("開始日", value=st.session_state["input_fields"]["start_date"])
+    end_date = st.date_input("終了日", value=st.session_state["input_fields"]["end_date"])
+    alert_hidden = st.checkbox("アラート非表示", value=st.session_state["input_fields"]["alert_hidden"])
     submitted = st.form_submit_button("追加")
 
 if submitted:
@@ -214,14 +194,22 @@ if submitted:
         }
 
         # セッション状態に新しいデータを追加
-        st.session_state["contracts"] = pd.concat(
+        updated_contracts = pd.concat(
             [st.session_state["contracts"], pd.DataFrame([new_row])],
             ignore_index=True,
         )
-        
-        # フォームのリセットを実行
-        reset_form_fields()
-        
+        st.session_state["contracts"] = updated_contracts
+
+         # 入力フィールドをリセット
+        st.session_state["input_fields"] = {
+            "engineer_name": "",
+            "skill": "",
+            "client_name": "",
+            "start_date": None,
+            "end_date": None,
+            "alert_hidden": False,
+        }
+
         # 追加完了メッセージ
         st.success("エンジニア情報を追加しました。")
 
