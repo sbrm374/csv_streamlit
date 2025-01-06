@@ -43,7 +43,6 @@ uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロード�
 if "contracts" not in st.session_state:
     st.session_state["contracts"] = pd.DataFrame(
         {
-            "削除":pd.Series(dtype=bool),
             "エンジニア名": [],
             "スキル": [],
             "顧客名": [],
@@ -68,8 +67,6 @@ if uploaded_file is not None:
             (datetime.now() - start).days for start in uploaded_data["開始日"]
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
-        uploaded_data["削除"] = [False] * len(uploaded_data)
-        uploaded_data["削除"] = uploaded_data["削除"].astype(bool)
 
         # すでにアップロードされたデータか確認
         if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
@@ -77,7 +74,6 @@ if uploaded_file is not None:
             st.session_state["contracts"] = pd.concat(
                 [st.session_state["contracts"], uploaded_data], ignore_index=True
             )
-            st.session_state["contracts"]["削除"] = st.session_state["contracts"]["削除"].astype(bool)
             st.session_state["uploaded_flag"] = True  # アップロード完了フラグを設定
             st.success("CSVファイルがアップロードされました。")
     except Exception as e:
@@ -205,29 +201,13 @@ tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
 # 全体タブ（すべてのデータを表示）
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
-
-    # `st.data_editor`を使用してデータを編集してチェックボックス列を追加する
-    edited_df = st.data_editor(
+    st.dataframe(
         st.session_state["contracts"],
         use_container_width=True,
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
-            "削除": st.column_config.CheckboxColumn(
-                "削除",
-                help="削除したい行を選択してください。",
-            ),
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
         },
     )
-
-    # 削除ボタンを追加
-    if st.button("選択した行を削除"):
-        # `削除` 列がTrueの行を削除
-        st.session_state["contracts"] = edited_df[~edited_df["削除"]].drop(columns=["削除"])
-        st.success("選択した行が削除されました。")
-
-    # 更新されたデータフレームを表示
-    st.subheader("更新後のデータフレーム")
-    st.dataframe(st.session_state["contracts"], use_container_width=True)
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
