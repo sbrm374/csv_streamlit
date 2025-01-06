@@ -161,16 +161,32 @@ st.sidebar.subheader("エンジニア情報を追加")
 
 # 入力フィールド初期化関数
 def reset_form_fields():
-    st.session_state["engineer_name"] = ""
-    st.session_state["skill"] = ""
-    st.session_state["client_name"] = ""
-    st.session_state["start_date"] = datetime.now().date()
-    st.session_state["end_date"] = datetime.now().date()
-    st.session_state["alert_hidden"] = False
+    if "engineer_name" in st.session_state:
+        st.session_state["engineer_name"] = ""
+    if "skill" in st.session_state:
+        st.session_state["skill"] = ""
+    if "client_name" in st.session_state:
+        st.session_state["client_name"] = ""
+    if "start_date" in st.session_state:
+        st.session_state["start_date"] = datetime.now().date()
+    if "end_date" in st.session_state:
+        st.session_state["end_date"] = datetime.now().date()
+    if "alert_hidden" in st.session_state:
+        st.session_state["alert_hidden"] = False
 
 # セッション状態の初期化
 if "engineer_name" not in st.session_state:
-    reset_form_fields()
+    st.session_state["engineer_name"] = ""
+if "skill" not in st.session_state:
+    st.session_state["skill"] = ""
+if "client_name" not in st.session_state:
+    st.session_state["client_name"] = ""
+if "start_date" not in st.session_state:
+    st.session_state["start_date"] = datetime.now().date()
+if "end_date" not in st.session_state:
+    st.session_state["end_date"] = datetime.now().date()
+if "alert_hidden" not in st.session_state:
+    st.session_state["alert_hidden"] = False
 
 with st.sidebar.form("add_engineer_form"):
     engineer_name = st.text_input("エンジニア名", value=st.session_state["engineer_name"], key="engineer_name")
@@ -203,8 +219,9 @@ if submitted:
             ignore_index=True,
         )
         
+        # フォームのリセットを実行
         reset_form_fields()
-
+        
         # 追加完了メッセージ
         st.success("エンジニア情報を追加しました。")
 
