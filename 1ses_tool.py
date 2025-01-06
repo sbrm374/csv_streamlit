@@ -205,7 +205,8 @@ with tab_all:
         st.session_state["contracts"],
         use_container_width=True,
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
+            "削除": st.column_config.CheckboxColumn("削除", default=False)
         },
     )
 
@@ -219,7 +220,8 @@ with tab_latest:
         latest_data,
         use_container_width=True,
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
+            "削除": st.column_config.CheckboxColumn("削除", default=False)
         },
     )
 
@@ -234,7 +236,8 @@ with tab_ongoing:
         ongoing_data,
         use_container_width=True,
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
+            "削除": st.column_config.CheckboxColumn("削除", default=False)
         },
     )
 
@@ -249,7 +252,8 @@ with tab_completed:
         completed_data,
         use_container_width=True,
         column_config={
-            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示")
+            "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
+            "削除": st.column_config.CheckboxColumn("削除", default=False)
         },
     )
 
