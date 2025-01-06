@@ -237,7 +237,7 @@ with tab_all:
     edited_data = st.data_editor(
         st.session_state["contracts"],
         use_container_width=True,
-        num_rows="dynamic",
+        num_rows="static",
         column_config={
             "アラート非表示": st.column_config.CheckboxColumn("アラート非表示"),
             "削除": st.column_config.CheckboxColumn(
