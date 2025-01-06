@@ -193,6 +193,22 @@ if submitted:
         # 追加完了メッセージ
         st.success("エンジニア情報を追加しました。")
 
+st.sidebar.subheader("データ削除")
+for index, row in st.session_state["contracts"].iterrows():
+    # 데이터를 박스 형태로 출력
+    with st.sidebar.expander(f"エンジニア名: {row['エンジニア名']}"):
+        st.write(f"スキル: {row['スキル']}")
+        st.write(f"顧客名: {row['顧客名']}")
+        st.write(f"開始日: {row['開始日'].date()}")
+        st.write(f"終了日: {row['終了日'].date()}")
+        
+        # 삭제 버튼
+        if st.button(f"削除", key=f"delete_{index}"):
+            # 선택한 데이터를 삭제
+            st.session_state["contracts"] = st.session_state["contracts"].drop(index).reset_index(drop=True)
+            st.success(f"エンジニア情報「{row['エンジニア名']}」を削除しました。")
+            st.experimental_rerun()  # UI 갱신
+
 # データ表示タブ
 tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
     ["全体タブ", "最新タブ", "継続タブ", "終了タブ", "終了率グラフ"]
