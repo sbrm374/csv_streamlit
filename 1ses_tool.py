@@ -41,26 +41,17 @@ uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロード�
 
 # セッション状態を初期化
 if "contracts" not in st.session_state:
-    st.session_state["contracts"] = pd.DataFrame(sample_data)
-    
-# データフレームを表示
-st.dataframe(st.session_state["contracts"], use_container_width=True)
-
-# ドロップダウンで削除するデータを選択
-st.subheader("データ削除")
-if not st.session_state["contracts"].empty:
-    selected_row = st.selectbox(
-        "削除するデータを選択してください。",
-        options=st.session_state["contracts"].index,
-        format_func=lambda x: f"{st.session_state['contracts'].iloc[x]['エンジニア名']} ({st.session_state['contracts'].iloc[x]['顧客名']})",
+    st.session_state["contracts"] = pd.DataFrame(
+        {
+            "エンジニア名": [],
+            "スキル": [],
+            "顧客名": [],
+            "開始日": [],
+            "終了日": [],
+            "継続日数": [],
+            "アラート非表示": [],
+        }
     )
-    
-    # 削除ボタン
-    if st.button("選択したデータを削除"):
-        st.session_state["contracts"] = st.session_state["contracts"].drop(selected_row).reset_index(drop=True)
-        st.success("選択したデータが削除されました。")
-else:
-    st.warning("削除可能なデータがありません。")
 
 if "render_flag" not in st.session_state:
     st.session_state["render_flag"] = False  # レンダリング制御フラグの初期化
