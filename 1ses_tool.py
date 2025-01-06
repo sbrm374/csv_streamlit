@@ -232,6 +232,11 @@ with tab_all:
                 "削除",
                 help="削除したい行を選択してください。",
             ),
+            "アラート非表示": st.column_config.CheckboxColumn(
+                "アラート非表示",
+                disabled=True,  # 編集不可に設定
+                help="この列は編集できません。",
+            ),
         },
         key="editor",
     )
