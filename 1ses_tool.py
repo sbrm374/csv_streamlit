@@ -250,6 +250,7 @@ with tab_all:
     if st.button("選択した行を削除"):
         # `削除`列がTrueの行を削除
         st.session_state["edited_contracts"] = edited_data[~edited_data["削除"]].reset_index(drop=True)
+        st.session_state["contracts"] = st.session_state["edited_contracts"].copy()
         st.success("選択した行が削除されました。")
 
     # 버튼을 눌렀을 때 session_state["contracts"] 업데이트
