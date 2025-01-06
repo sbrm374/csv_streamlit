@@ -244,11 +244,16 @@ with tab_all:
 
     # 削除ボタンを追加
     if st.button("選択した行を削除"):
-        # `削除` 列がTrueの行を削除
-        st.session_state["contracts"] = st.session_state["contracts"][~st.session_state["contracts"]["削除"]].reset_index(drop=True)
-        # 削除列をリセット（Falseに戻す）
-        st.session_state["contracts"]["削除"] = False
+        # `削除`列がTrueの行を削除
+        st.session_state["edited_contracts"] = st.session_state["edited_contracts"][
+            ~st.session_state["edited_contracts"]["削除"]
+        ]
         st.success("選択した行が削除されました。")
+
+    # 버튼을 눌렀을 때 session_state["contracts"] 업데이트
+    if st.button("変更内容を保存"):
+        st.session_state["contracts"] = st.session_state["edited_contracts"].copy()
+        st.success("変更内容が保存されました。")
 
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
