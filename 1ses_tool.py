@@ -224,6 +224,10 @@ tab_all, tab_latest, tab_ongoing, tab_completed, tab_rate = st.tabs(
 with tab_all:
     st.subheader("全体タブ: 全ての契約")
 
+    # 初回のみ "edited_contracts" を初期化
+    if "edited_contracts" not in st.session_state:
+        st.session_state["edited_contracts"] = st.session_state["contracts"].copy()
+
     # `st.data_editor` 호출 전 데이터 타입 출력
     st.write("st.data_editor呼び出し前のデータ型:")
     st.write(st.session_state["contracts"].dtypes)
@@ -245,9 +249,7 @@ with tab_all:
     # 削除ボタンを追加
     if st.button("選択した行を削除"):
         # `削除`列がTrueの行を削除
-        st.session_state["edited_contracts"] = st.session_state["edited_contracts"][
-            ~st.session_state["edited_contracts"]["削除"]
-        ]
+        st.session_state["edited_contracts"] = edited_data[~edited_data["削除"]].reset_index(drop=True)
         st.success("選択した行が削除されました。")
 
     # 버튼을 눌렀을 때 session_state["contracts"] 업데이트
