@@ -30,3 +30,4 @@ moviepy
 gdown
 xlrd>=2.0.1
 plotly
+streamlit-aggrid
