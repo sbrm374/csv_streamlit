@@ -41,17 +41,17 @@ uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロード�
 
 # セッション状態を初期化
 if "contracts" not in st.session_state:
-    st.session_state["contracts"] = pd.DataFrame(sample_data)
-
-st.dataframe(st.session_state["contracts"], use_container_width=True)
-
-# 삭제 버튼
-st.subheader("個別削除")
-for index, row in st.session_state["contracts"].iterrows():
-    if st.button(f"削除 ({row['エンジニア名']})", key=f"delete_{index}"):
-        st.session_state["contracts"] = st.session_state["contracts"].drop(index).reset_index(drop=True)
-        st.success(f"{row['エンジニア名']} のデータを削除しました。")
-        st.experimental_rerun()  # UI 갱신
+    st.session_state["contracts"] = pd.DataFrame(
+        {
+            "エンジニア名": [],
+            "スキル": [],
+            "顧客名": [],
+            "開始日": [],
+            "終了日": [],
+            "継続日数": [],
+            "アラート非表示": [],
+        }
+    )
 
 if "render_flag" not in st.session_state:
     st.session_state["render_flag"] = False  # レンダリング制御フラグの初期化
