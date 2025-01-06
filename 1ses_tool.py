@@ -69,6 +69,7 @@ if uploaded_file is not None:
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
         uploaded_data["削除"] = [False] * len(uploaded_data)
+        uploaded_data["削除"] = uploaded_data["削除"].astype(bool)
 
         # すでにアップロードされたデータか確認
         if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
@@ -76,6 +77,7 @@ if uploaded_file is not None:
             st.session_state["contracts"] = pd.concat(
                 [st.session_state["contracts"], uploaded_data], ignore_index=True
             )
+            st.session_state["contracts"]["削除"] = st.session_state["contracts"]["削除"].astype(bool)
             st.session_state["uploaded_flag"] = True  # アップロード完了フラグを設定
             st.success("CSVファイルがアップロードされました。")
     except Exception as e:
