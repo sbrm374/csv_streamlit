@@ -169,12 +169,12 @@ if "input_fields" not in st.session_state:
     }
 
 with st.sidebar.form("add_engineer_form"):
-    engineer_name = st.text_input("エンジニア名", value=st.session_state["input_fields"]["engineer_name"])
-    skill = st.text_input("スキル", value=st.session_state["input_fields"]["skill"])
-    client_name = st.text_input("顧客名", value=st.session_state["input_fields"]["client_name"])
-    start_date = st.date_input("開始日", value=st.session_state["input_fields"]["start_date"])
-    end_date = st.date_input("終了日", value=st.session_state["input_fields"]["end_date"])
-    alert_hidden = st.checkbox("アラート非表示", value=st.session_state["input_fields"]["alert_hidden"])
+    engineer_name = st.text_input("エンジニア名", value=st.session_state["input_fields"]["engineer_name"], key="engineer_name_input")
+    skill = st.text_input("スキル", value=st.session_state["input_fields"]["skill"], key="skill_input")
+    client_name = st.text_input("顧客名", value=st.session_state["input_fields"]["client_name"], key="client_name_input")
+    start_date = st.date_input("開始日", value=st.session_state["input_fields"]["start_date"], key="start_date_input")
+    end_date = st.date_input("終了日", value=st.session_state["input_fields"]["end_date"], key="end_date_input")
+    alert_hidden = st.checkbox("アラート非表示", value=st.session_state["input_fields"]["alert_hidden"], key="alert_hidden_input")
     submitted = st.form_submit_button("追加")
 
 if submitted:
@@ -209,6 +209,14 @@ if submitted:
             "end_date": None,
             "alert_hidden": False,
         }
+
+        # Streamlit フィールドもリセット
+        st.session_state["engineer_name_input"] = ""
+        st.session_state["skill_input"] = ""
+        st.session_state["client_name_input"] = ""
+        st.session_state["start_date_input"] = None
+        st.session_state["end_date_input"] = None
+        st.session_state["alert_hidden_input"] = False
 
         # 追加完了メッセージ
         st.success("エンジニア情報を追加しました。")
