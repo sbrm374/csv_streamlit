@@ -15,7 +15,7 @@ plt.rcParams['font.family'] = font_prop.get_name()
 plt.rcParams['axes.unicode_minus'] = False  # マイナス記号が崩れないように設定
 
 # タイトル
-st.title("SES事業継続率管理ツール")
+st.title("SES事業継続率管理ツールㄴ")
 
 # サンプルデータ
 sample_data = {
