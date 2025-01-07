@@ -248,6 +248,21 @@ with tab_all:
         st.rerun()
         st.success("選択した行が削除されました。")
 
+    # 最終データダウンロードボタンを追加
+    if not st.session_state["contracts"].empty:
+        # 現在の状態のデータをCSV形式に変換
+        final_csv = st.session_state["contracts"].to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+        
+        # ダウンロードボタンの作成
+        st.sidebar.download_button(
+            label="現在のデータをダウンロード",  # 
+            data=final_csv,  # ダウンロードするデータ
+            file_name="current_ses_data.csv",  # ダウンロードするファイル名
+            mime="text/csv"  # MIME タイプ設定
+        )
+    else:
+        st.sidebar.write("現在のデータがありません。")
+        
 # 最新タブ（アラート非表示を除外）
 with tab_latest:
     st.subheader("最新タブ: アラート表示中の契約")
