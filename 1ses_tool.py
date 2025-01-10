@@ -57,14 +57,27 @@ if "contracts" not in st.session_state:
 if "render_flag" not in st.session_state:
     st.session_state["render_flag"] = False  # レンダリング制御フラグの初期化
 
+def detect_encoding(file):
+    """
+    Detect the encoding of a given file using chardet.
+    """
+    raw_data = file.read()
+    file.seek(0)  # Reset file pointer after reading
+    result = chardet.detect(raw_data)
+    encoding = result['encoding']
+    if encoding is None:
+        raise ValueError("ファイルのエンコーディングを判定できませんでした。")
+    return encoding
+    
 def read_csv_with_encoding(file):
     """
-    Try to read a CSV file with 'utf-8' first, fallback to 'shift_jis'.
+    Read a CSV file with detected encoding.
     """
     try:
-        return pd.read_csv(file, encoding="utf-8")
-    except UnicodeDecodeError:
-        return pd.read_csv(file, encoding="shift_jis")
+        encoding = detect_encoding(file)
+        return pd.read_csv(file, encoding=encoding)
+    except Exception as e:
+        raise ValueError(f"CSVファイルを読み込む際にエラーが発生しました: {e}")
 
 
 def generate_csv_download(dataframe, filename="data.csv"):
