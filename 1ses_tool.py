@@ -58,19 +58,24 @@ if "render_flag" not in st.session_state:
     st.session_state["render_flag"] = False  # レンダリング制御フラグの初期化
 
 def read_csv_with_encoding(file):
-    """Try to read a CSV file with 'shift_jis' first, fallback to 'utf-8'."""
+    """
+    Try to read a CSV file with 'utf-8' first, fallback to 'shift_jis'.
+    """
     try:
-        return pd.read_csv(file, encoding="shift_jis")
-    except UnicodeDecodeError:
         return pd.read_csv(file, encoding="utf-8")
+    except UnicodeDecodeError:
+        return pd.read_csv(file, encoding="shift_jis")
+
 
 def generate_csv_download(dataframe, filename="data.csv"):
-    """Generate CSV data encoded as shift_jis or utf-8."""
+    """
+    Generate CSV data encoded as utf-8 or shift_jis.
+    """
     try:
-        return dataframe.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+        return dataframe.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
     except UnicodeEncodeError:
-        return dataframe.to_csv(index=False, encoding="utf-8").encode("utf-8")
-        
+        return dataframe.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+
 # アップロードされたファイルを処理
 if uploaded_file is not None:
     try:
