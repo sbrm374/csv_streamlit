@@ -21,16 +21,16 @@ uploaded_file = st.sidebar.file_uploader("CSVファイルをアップロード�
 
 if uploaded_file is not None:
     try:
-        # ファイルのバイナリデータを読み込む
-        raw_data = uploaded_file.read()
-        
-        # インコーディングを自動検出
-        detected = chardet.detect(raw_data)
-        encoding = detected['encoding'] if detected['confidence'] > 0.8 else 'utf-8'  # 信頼度が高ければそのエンコーディングを使用
-        
-        # データをエンコーディングを指定して読み込む
-        uploaded_data = pd.read_csv(io.BytesIO(raw_data), encoding=encoding)
-        
+        # CSVデータを最初にShift_JISで読み込む
+        try:
+            uploaded_data = pd.read_csv(uploaded_file, encoding="shift_jis")
+            st.success("ファイルがShift_JISエンコーディングとして読み込まれました。")
+        except UnicodeDecodeError:
+            # Shift_JISでエラーが発生した場合、UTF-8で再試行
+            uploaded_file.seek(0)  # ファイルポインタを先頭に戻す
+            uploaded_data = pd.read_csv(uploaded_file, encoding="utf-8")
+            st.success("ファイルがUTF-8エンコーディングとして読み込まれました。")
+
         # 日付フィールドをパース
         uploaded_data["開始日"] = pd.to_datetime(uploaded_data["開始日"])
         uploaded_data["終了日"] = pd.to_datetime(uploaded_data["終了日"])
@@ -44,8 +44,17 @@ if uploaded_file is not None:
         uploaded_data["削除"] = uploaded_data["削除"].astype(bool)
         uploaded_data["アラート非表示"] = uploaded_data["アラート非表示"].astype(bool)
 
-        # アップロード成功の通知
-        st.success(f"CSVファイルがアップロードされました。検出されたエンコーディング: {encoding}")
+        # すでにアップロードされたデータか確認
+        if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
+            # アップロードされたデータを既存データにマージ
+            st.session_state["contracts"] = pd.concat(
+                [st.session_state["contracts"], uploaded_data], ignore_index=True
+            )
+            # データのマージ後にデータ型を保証する
+            st.session_state["contracts"]["削除"] = st.session_state["contracts"]["削除"].astype(bool)
+            st.session_state["contracts"]["アラート非表示"] = st.session_state["contracts"]["アラート非表示"].astype(bool)
 
+            st.session_state["uploaded_flag"] = True  # アップロード完了フラグを設定
+            st.success("CSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
