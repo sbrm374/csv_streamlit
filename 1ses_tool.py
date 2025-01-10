@@ -60,11 +60,7 @@ if "render_flag" not in st.session_state:
 # アップロードされたファイルを処理
 if uploaded_file is not None:
     try:
-        try:
-            uploaded_data = pd.read_csv(uploaded_file, encoding="utf-8")
-        except UnicodeDecodeError:
-            # UTF-8で失敗した場合はShift-JISを試す
-            uploaded_data = pd.read_csv(uploaded_file, encoding="shift_jis")
+        uploaded_data = read_csv_with_encoding(uploaded_file)
 
         uploaded_data["開始日"] = pd.to_datetime(uploaded_data["開始日"])
         uploaded_data["終了日"] = pd.to_datetime(uploaded_data["終了日"])
@@ -73,11 +69,11 @@ if uploaded_file is not None:
         ]
         uploaded_data["アラート非表示"] = [False] * len(uploaded_data)
         uploaded_data["削除"] = [False] * len(uploaded_data)
-
+    
         # データ型を明示的に変換
         uploaded_data["削除"] = uploaded_data["削除"].astype(bool)
         uploaded_data["アラート非表示"] = uploaded_data["アラート非表示"].astype(bool)
-
+    
         # すでにアップロードされたデータか確認
         if "uploaded_flag" not in st.session_state or not st.session_state["uploaded_flag"]:
             # アップロードされたデータを既存データにマージ
@@ -87,7 +83,7 @@ if uploaded_file is not None:
             # データのマージ後にデータ型を保証する
             st.session_state["contracts"]["削除"] = st.session_state["contracts"]["削除"].astype(bool)
             st.session_state["contracts"]["アラート非表示"] = st.session_state["contracts"]["アラート非表示"].astype(bool)
-
+    
             st.session_state["uploaded_flag"] = True  # アップロード完了フラグを設定
             st.success("CSVファイルがアップロードされました。")
     except Exception as e:
@@ -169,6 +165,20 @@ def plot_completion_rate_with_slider(data, freq="D"):
     buf.seek(0)
     st.image(buf, caption="終了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
+
+def read_csv_with_encoding(file):
+    """Try to read a CSV file with 'shift_jis' first, fallback to 'utf-8'."""
+    try:
+        return pd.read_csv(file, encoding="shift_jis")
+    except UnicodeDecodeError:
+        return pd.read_csv(file, encoding="utf-8")
+
+def generate_csv_download(dataframe, filename="data.csv"):
+    """Generate CSV data encoded as shift_jis or utf-8."""
+    try:
+        return dataframe.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+    except UnicodeEncodeError:
+        return dataframe.to_csv(index=False, encoding="utf-8").encode("utf-8")
 
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
@@ -254,15 +264,12 @@ with tab_all:
 
     # 最終データダウンロードボタンを追加
     if not st.session_state["contracts"].empty:
-        # 現在の状態のデータをCSV形式に変換
-        final_csv = st.session_state["contracts"].to_csv(index=False, encoding="shift_jis").encode("shift_jis")
-        
-        # ダウンロードボタンの作成
+        final_csv = generate_csv_download(st.session_state["contracts"], "current_ses_data.csv")
         st.sidebar.download_button(
-            label="現在のデータをダウンロード",  # 
-            data=final_csv,  # ダウンロードするデータ
-            file_name="current_ses_data.csv",  # ダウンロードするファイル名
-            mime="text/csv"  # MIME タイプ設定
+            label="現在のデータをダウンロード",
+            data=final_csv,
+            file_name="current_ses_data.csv",
+            mime="text/csv"
         )
     else:
         st.sidebar.write("現在のデータがありません。")
