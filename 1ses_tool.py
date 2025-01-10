@@ -7,6 +7,8 @@ import matplotlib.font_manager as fm
 import io
 import os
 import plotly.express as px
+import chardet
+
 
 # フォント設定
 font_path = "./fonts/NotoSansJP-Regular.otf"
