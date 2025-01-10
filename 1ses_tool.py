@@ -57,6 +57,20 @@ if "contracts" not in st.session_state:
 if "render_flag" not in st.session_state:
     st.session_state["render_flag"] = False  # レンダリング制御フラグの初期化
 
+def read_csv_with_encoding(file):
+    """Try to read a CSV file with 'shift_jis' first, fallback to 'utf-8'."""
+    try:
+        return pd.read_csv(file, encoding="shift_jis")
+    except UnicodeDecodeError:
+        return pd.read_csv(file, encoding="utf-8")
+
+def generate_csv_download(dataframe, filename="data.csv"):
+    """Generate CSV data encoded as shift_jis or utf-8."""
+    try:
+        return dataframe.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
+    except UnicodeEncodeError:
+        return dataframe.to_csv(index=False, encoding="utf-8").encode("utf-8")
+        
 # アップロードされたファイルを処理
 if uploaded_file is not None:
     try:
@@ -165,20 +179,6 @@ def plot_completion_rate_with_slider(data, freq="D"):
     buf.seek(0)
     st.image(buf, caption="終了率推移 (スライダーで期間選択)", use_container_width=True)
     buf.close()
-
-def read_csv_with_encoding(file):
-    """Try to read a CSV file with 'shift_jis' first, fallback to 'utf-8'."""
-    try:
-        return pd.read_csv(file, encoding="shift_jis")
-    except UnicodeDecodeError:
-        return pd.read_csv(file, encoding="utf-8")
-
-def generate_csv_download(dataframe, filename="data.csv"):
-    """Generate CSV data encoded as shift_jis or utf-8."""
-    try:
-        return dataframe.to_csv(index=False, encoding="shift_jis").encode("shift_jis")
-    except UnicodeEncodeError:
-        return dataframe.to_csv(index=False, encoding="utf-8").encode("utf-8")
 
 # エンジニア情報追加フォーム
 st.sidebar.subheader("エンジニア情報を追加")
