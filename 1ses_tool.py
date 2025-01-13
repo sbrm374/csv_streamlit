@@ -122,7 +122,24 @@ if uploaded_file is not None:
             st.success("CSVファイルがアップロードされました。")
     except Exception as e:
         st.error(f"アップロードされたファイルの処理中にエラーが発生しました: {e}")
-
+        
+# Xボタンの動作を検知（ファイルのアップロードが初期化されたか確認）
+elif "uploaded_flag" in st.session_state and st.session_state["uploaded_flag"]:
+    # セッション状態を初期化
+    st.session_state["contracts"] = pd.DataFrame(
+        {
+            "削除": pd.Series(dtype=bool),
+            "エンジニア名": pd.Series(dtype=str),
+            "スキル": pd.Series(dtype=str),
+            "顧客名": pd.Series(dtype=str),
+            "開始日": pd.Series(dtype="datetime64[ns]"),
+            "終了日": pd.Series(dtype="datetime64[ns]"),
+            "継続日数": pd.Series(dtype=int),
+            "アラート非表示": pd.Series(dtype=bool),
+        }
+    )
+    st.session_state["uploaded_flag"] = False
+    
 # 継続率を計算する関数
 def calculate_continuity_rate(data):
     data = data.sort_values("終了日")
