@@ -43,23 +43,17 @@ def split_text(text, chunk_size=1000):
     
 # 형태소 분석 함수
 def perform_mecab_analysis(text):
-    """
-    Janome을 사용해 형태소 분석을 수행합니다.
-    """
     tokenizer = Tokenizer()
     tokens = tokenizer.tokenize(text, wakati=True)
     return " ".join(tokens)
 
 # 요약 함수
 def summarize_text(text, max_sentences=2):
-    """
-    Sumy를 사용해 텍스트 요약을 수행합니다.
-    """
     parser = PlaintextParser.from_string(text, SumyTokenizer("japanese"))
     summarizer = LsaSummarizer()
     summary = summarizer(parser.document, max_sentences)
-    return summary
-
+    return [str(sentence) for sentence in summary]
+    
 # フォント設定
 font_path = "./fonts/NotoSansJP-Regular.otf"
 font_prop = fm.FontProperties(fname=font_path)
@@ -317,20 +311,15 @@ with tab_all:
     text_data = " ■スキルシート Unnamed: 1 Unnamed: 2 Unnamed: 3 Unnamed: 4 Unnamed: 5 Unnamed: 6 Unnamed: 7 Unnamed: 8 Unnamed: 9 Unnamed: 10 Unnamed: 11 Unnamed: 12 Unnamed: 13 Unnamed: 14 Unnamed: 15 Unnamed: 16 Unnamed: 17 Unnamed: 18 Unnamed: 19 Unnamed: 20 Unnamed: 21 Unnamed: 22 Unnamed: 23 Unnamed: 24 Unnamed: 25 Unnamed: 26 Unnamed: 27 Unnamed: 28 Unnamed: 29 Unnamed: 30 Unnamed: 31 Unnamed: 32 Unnamed: 33 Unnamed: 34 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN フリガナ NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 最寄駅 NaN NaN NaN NaN NaN 年齢 NaN NaN 最終学歴 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 名前 NaN NaN M　H NaN NaN NaN NaN NaN NaN NaN NaN NaN 東十条 NaN NaN NaN NaN NaN 29 NaN NaN 大学卒 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 資格 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 保有技術 NaN NaN NaN プログラミング言語: C#（5年）、Haxe（1年）、C++（2年）\nフレームワーク/ライブラリ: Unity（5年）\nツール/ソフトウェア: Git\nその他: 自社エンジン使用経験 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 得意業務 NaN NaN NaN UI/UX設計とゲームシステム実装：\nUnityやHaxe、C++を用いたUIデザインやゲームシステムの設計・実装を担当。\n\nプロジェクト管理とリーダー経験：\n小規模チームのリーダーとしてプロジェクト進行管理を経験。\n\nドキュメント作成と技術共有：\n技術的な知識やチーム内の共有事項のドキュメント化を行った効率的な情報共有。 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 主な実績 NaN NaN NaN カジュアルゲーム開発（2020年9月～2021年2月）\n担当業務: UnityとC#を使用し、1か月間で1つのカジュアルゲームを開発。全ての工程を担当。\n成果: 短期間で複数の高品質なゲームを完成させた。\nRPGゲームのUI開発（2021年3月～2021年12月）\n担当業務: HaxeとC++を用いたRPGゲームのUI開発、小規模チームのリーダーとしてプロジェクト進行管理。 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN ＯＳ NaN NaN NaN NaN Windows NaN NaN Mac NaN NaN Linux NaN NaN Solaris NaN NaN Unix NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 対応可 NaN NaN 対応可 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN DB NaN NaN NaN NaN Oracle NaN NaN PostgresSQL NaN NaN SQLserver NaN NaN MySQL NaN NaN DB2 NaN NaN Sybase NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 言語 NaN NaN NaN NaN Perl NaN NaN PHP NaN NaN ASP NaN NaN JSP NaN NaN C NaN NaN C++ NaN NaN C# NaN NaN JAVA NaN NaN VB NaN NaN Delphi NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 2年 NaN NaN 5年 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN JavaScript NaN NaN XML NaN NaN RUBY NaN NaN HTML NaN NaN CSS NaN NaN COBOL NaN NaN golang NaN NaN scala NaN NaN python NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 片手間程度 NaN NaN NaN NaN NaN NaN NaN NaN 片手間程度 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN ツール NaN NaN NaN NaN Word NaN NaN Access NaN NaN Excel NaN NaN PowerPoint NaN NaN Notes NaN NaN visio NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 片手間程度 NaN NaN NaN NaN NaN VBAでマクロ組める程度 NaN NaN 片手間程度 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN デザイン NaN NaN NaN NaN Photoshop NaN NaN Illustrator NaN NaN QuarkXpress NaN NaN DreamWeaver NaN NaN FireWorks NaN NaN Flash NaN NaN Director NaN NaN FreeHand NaN NaN ColdFusion NaN NaN Shade NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN Premiere NaN NaN LightWave NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 期間 NaN NaN NaN 業務内容 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 役割\n\n規模 NaN NaN NaN NaN 使用\n言語 NaN DB NaN サーバ\nOS NaN FW・MW\nツール\n等 NaN 担当工程 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 要件定義 基本設計 詳細設計 実装・単体 結合テスト 総合テスト 保守・運用 1 44256.0 - 45382 ■RPGゲーム開発 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN プログラマ NaN NaN NaN NaN C++\nHaxe NaN NaN NaN NaN NaN VisualStudio\nVisualStudioCode\nその他、自社内ツール NaN NaN ● ● ● ● ● NaN NaN NaN NaN NaN ≪仕事内容≫\n自社エンジンを使用し、HaxeとC++でRPGゲームのUI開発を担当。メ\nニューUI、マップUI、アイテム管理UI、バトルUI、ステータスUIなど多岐にわたる\nUIを設計・実装しました。\nまた、UI以外にもセーブデータ管理やカメラ処理を担当。\n小規模チームのリーダーとしてプロジェクトの進行を管理しました。\n≪心がけていたこと≫\nユーザーが直感的に操作できるUI設計を意識し、チーム全体の\n進捗管理とメンバーサポートに注力。\n≪培った能力≫\nUI/UXデザインと実装力を強化し、リーダーシップとプロジェクト管理能\n力を培いました。 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN チーム\n8名\n\n開発\n200名\n\n全体\n700名 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 37.0 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 2 44075.0 - 44255 ■カジュアルゲーム開発 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN プログラマ NaN NaN NaN NaN c# NaN NaN NaN NaN NaN Unity\nVisualStudio NaN NaN ● ● ● ● ● NaN NaN NaN NaN NaN ≪仕事内容≫\nUnityとC#を用いて、1か月間で1つのカジュアルゲームを開発。\nプロジェクト全体を一人で担当し、UIデザイン、ゲームシステムの実装、\nレベルデザインを行い、開始から終了までの全工程を担いました。\n約6か月間で複数のカジュアルゲームを制作しました。\n≪心がけていたこと≫\n短期間での高品質なゲーム完成を目指し、効率的なタスク管理と\n一貫したクオリティの維持に注力。\n≪培った能力≫\nフルスタックなゲーム開発能力を習得し、UIやゲームシステムの統一感\nを高めるスキルを磨きました。 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN チーム\n2名\n\n開発\n1名\n\n全体\n3名 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 6.0 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 3 NaN - NaN ■ NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN"
 
     if st.button("要約実行"):
-        # Step 1: 전처리
         cleaned_text = preprocess_text(text_data)
-        
-        # Step 2: 텍스트 분할
         text_chunks = split_text(cleaned_text)
     
-        # Step 3: 형태소 분석 및 요약
         all_summaries = []
         for chunk in text_chunks:
-            wakati_text = perform_mecab_analysis(chunk)  # Janome으로 형태소 분석
-            summary = summarize_text(wakati_text)  # Sumy로 요약
+            wakati_text = perform_mecab_analysis(chunk)
+            summary = summarize_text(wakati_text)
             all_summaries.extend(summary)
     
-        # 결과 출력
         st.subheader("要約結果")
         for sentence in all_summaries:
             st.write(sentence)
