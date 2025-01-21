@@ -33,3 +33,4 @@ plotly
 streamlit-aggrid
 chardet
 pipeline
+transformers
