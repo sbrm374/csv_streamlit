@@ -40,3 +40,4 @@ torchaudio
 sumy 
 mecab-python3
 janome
+tinysegmenter
