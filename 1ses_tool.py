@@ -9,6 +9,7 @@ import os
 import plotly.express as px
 import chardet
 from transformers import pipeline
+import re
 
 # フォント設定
 font_path = "./fonts/NotoSansJP-Regular.otf"
