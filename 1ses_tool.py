@@ -318,7 +318,7 @@ with tab_all:
 
     if st.button("要約実行"):
         # Step 1: 전처리
-        cleaned_text = preprocess_text(input_text)
+        cleaned_text = preprocess_text(text_data)
         
         # Step 2: 텍스트 분할
         text_chunks = split_text(cleaned_text)
