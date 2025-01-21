@@ -34,3 +34,6 @@ streamlit-aggrid
 chardet
 pipeline
 transformers
+torch 
+torchvision 
+torchaudio
