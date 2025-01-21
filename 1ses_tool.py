@@ -315,19 +315,20 @@ with tab_all:
     # 전처리된 텍스트 분할
     text_chunks = split_text(cleaned_text)
 
-    # 요약 모델 로드
-    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    # 캐시를 사용해 모델 로드 속도 개선
+    @st.cache_resource
+    def load_summarizer():
+        return pipeline("summarization", model="sonoisa/t5-small-japanese")
+        
+    # 모델 로드
+    summarizer = load_summarizer()
     
     # 각 조각 요약 및 결과 합치기
     summaries = []
-    for chunk in text_chunks:
-        summary = summarizer(chunk, max_length=200, min_length=50, do_sample=False)
-        summaries.append(summary[0]['summary_text'])
-    
-    # 최종 요약 결과
-    final_summary = " ".join(summaries)
-    st.write("요약 결과:")
-    st.write(final_summary)
+    if st.button("要約を実行"):
+        summary = summarizer(text_chunks, max_length=50, min_length=10, do_sample=False)
+        st.write("要約結果:")
+        st.success(summary[0]["summary_text"])
         
     # 初回のみ "contracts" を初期化
     if "contracts" not in st.session_state:
