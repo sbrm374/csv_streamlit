@@ -9,7 +9,7 @@ import os
 import plotly.express as px
 import chardet
 from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer
+from sumy.nlp.tokenizers import Tokenizer as SumyTokenizer
 from sumy.summarizers.lsa import LsaSummarizer
 import re
 from janome.tokenizer import Tokenizer
