@@ -37,4 +37,5 @@ transformers
 torch 
 torchvision 
 torchaudio
-sumy mecab-python3
+sumy 
+mecab-python3
