@@ -10,6 +10,11 @@ import plotly.express as px
 import chardet
 from transformers import pipeline
 import re
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lsa import LsaSummarizer
+import MeCab
+
 
 def preprocess_text(text):
     """
@@ -315,20 +320,17 @@ with tab_all:
     # 전처리된 텍스트 분할
     text_chunks = split_text(cleaned_text)
 
-    # 캐시를 사용해 모델 로드 속도 개선
-    @st.cache_resource
-    def load_summarizer():
-        return pipeline("summarization", model="sonoisa/t5-small-japanese")
-        
-    # 모델 로드
-    summarizer = load_summarizer()
-    
-    # 각 조각 요약 및 결과 합치기
-    summaries = []
-    if st.button("要約を実行"):
-        summary = summarizer(text_chunks, max_length=50, min_length=10, do_sample=False)
-        st.write("要約結果:")
-        st.success(summary[0]["summary_text"])
+    # MeCab을 사용한 형태소 분석
+    mecab = MeCab.Tagger("-Owakati")
+    wakati_text = mecab.parse(text_data)
+
+    # Sumy를 사용한 요약
+    parser = PlaintextParser.from_string(wakati_text, Tokenizer("japanese"))
+    summarizer = LsaSummarizer()
+    summary = summarizer(parser.document, 2)    
+
+    for sentence in summary:
+        st.write(sentence)
         
     # 初回のみ "contracts" を初期化
     if "contracts" not in st.session_state:
