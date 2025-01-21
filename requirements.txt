@@ -39,3 +39,4 @@ torchvision
 torchaudio
 sumy 
 mecab-python3
+janome
