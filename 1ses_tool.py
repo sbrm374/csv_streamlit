@@ -11,6 +11,50 @@ import chardet
 from transformers import pipeline
 import re
 
+def preprocess_text(text):
+    """
+    텍스트 전처리 함수: 불필요한 정보 제거 및 정리.
+    """
+    # 1. Unnamed와 NaN 제거
+    text = re.sub(r"Unnamed: \d+|NaN", "", text)
+
+    # 2. 중복된 공백 및 줄바꿈 제거
+    text = re.sub(r"\s+", " ", text.strip())
+
+    # 3. 불필요한 특수 문자 제거
+    text = re.sub(r"[^a-zA-Z0-9가-힣ぁ-んァ-ン一-龥 .,。！？]", "", text)
+
+    # 4. 텍스트 길이 줄이기 (필요 시)
+    if len(text) > 10000:  # 필요 이상으로 긴 경우, 앞뒤 주요 부분만 사용
+        text = text[:5000] + " ... " + text[-5000:]
+
+    return text
+
+def split_text(text, max_length=1024):
+    """
+    긴 텍스트를 max_length 이하로 분할.
+    """
+    sentences = text.split('. ')  # 문장 단위로 분리
+    chunks = []
+    current_chunk = []
+    current_length = 0
+
+    for sentence in sentences:
+        sentence_length = len(sentence.split())
+        if current_length + sentence_length <= max_length:
+            current_chunk.append(sentence)
+            current_length += sentence_length
+        else:
+            chunks.append('. '.join(current_chunk) + '.')
+            current_chunk = [sentence]
+            current_length = sentence_length
+
+    if current_chunk:
+        chunks.append('. '.join(current_chunk) + '.')
+
+    return chunks
+
+
 # フォント設定
 font_path = "./fonts/NotoSansJP-Regular.otf"
 font_prop = fm.FontProperties(fname=font_path)
@@ -266,16 +310,24 @@ with tab_all:
     st.subheader("全体タブ: 全ての契約")
 
     text_data = " ■スキルシート Unnamed: 1 Unnamed: 2 Unnamed: 3 Unnamed: 4 Unnamed: 5 Unnamed: 6 Unnamed: 7 Unnamed: 8 Unnamed: 9 Unnamed: 10 Unnamed: 11 Unnamed: 12 Unnamed: 13 Unnamed: 14 Unnamed: 15 Unnamed: 16 Unnamed: 17 Unnamed: 18 Unnamed: 19 Unnamed: 20 Unnamed: 21 Unnamed: 22 Unnamed: 23 Unnamed: 24 Unnamed: 25 Unnamed: 26 Unnamed: 27 Unnamed: 28 Unnamed: 29 Unnamed: 30 Unnamed: 31 Unnamed: 32 Unnamed: 33 Unnamed: 34 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN フリガナ NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 最寄駅 NaN NaN NaN NaN NaN 年齢 NaN NaN 最終学歴 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 名前 NaN NaN M　H NaN NaN NaN NaN NaN NaN NaN NaN NaN 東十条 NaN NaN NaN NaN NaN 29 NaN NaN 大学卒 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 資格 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 保有技術 NaN NaN NaN プログラミング言語: C#（5年）、Haxe（1年）、C++（2年）\nフレームワーク/ライブラリ: Unity（5年）\nツール/ソフトウェア: Git\nその他: 自社エンジン使用経験 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 得意業務 NaN NaN NaN UI/UX設計とゲームシステム実装：\nUnityやHaxe、C++を用いたUIデザインやゲームシステムの設計・実装を担当。\n\nプロジェクト管理とリーダー経験：\n小規模チームのリーダーとしてプロジェクト進行管理を経験。\n\nドキュメント作成と技術共有：\n技術的な知識やチーム内の共有事項のドキュメント化を行った効率的な情報共有。 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 主な実績 NaN NaN NaN カジュアルゲーム開発（2020年9月～2021年2月）\n担当業務: UnityとC#を使用し、1か月間で1つのカジュアルゲームを開発。全ての工程を担当。\n成果: 短期間で複数の高品質なゲームを完成させた。\nRPGゲームのUI開発（2021年3月～2021年12月）\n担当業務: HaxeとC++を用いたRPGゲームのUI開発、小規模チームのリーダーとしてプロジェクト進行管理。 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN ＯＳ NaN NaN NaN NaN Windows NaN NaN Mac NaN NaN Linux NaN NaN Solaris NaN NaN Unix NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 対応可 NaN NaN 対応可 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN DB NaN NaN NaN NaN Oracle NaN NaN PostgresSQL NaN NaN SQLserver NaN NaN MySQL NaN NaN DB2 NaN NaN Sybase NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 言語 NaN NaN NaN NaN Perl NaN NaN PHP NaN NaN ASP NaN NaN JSP NaN NaN C NaN NaN C++ NaN NaN C# NaN NaN JAVA NaN NaN VB NaN NaN Delphi NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 2年 NaN NaN 5年 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN JavaScript NaN NaN XML NaN NaN RUBY NaN NaN HTML NaN NaN CSS NaN NaN COBOL NaN NaN golang NaN NaN scala NaN NaN python NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 片手間程度 NaN NaN NaN NaN NaN NaN NaN NaN 片手間程度 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN ツール NaN NaN NaN NaN Word NaN NaN Access NaN NaN Excel NaN NaN PowerPoint NaN NaN Notes NaN NaN visio NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 片手間程度 NaN NaN NaN NaN NaN VBAでマクロ組める程度 NaN NaN 片手間程度 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN デザイン NaN NaN NaN NaN Photoshop NaN NaN Illustrator NaN NaN QuarkXpress NaN NaN DreamWeaver NaN NaN FireWorks NaN NaN Flash NaN NaN Director NaN NaN FreeHand NaN NaN ColdFusion NaN NaN Shade NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN Premiere NaN NaN LightWave NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 期間 NaN NaN NaN 業務内容 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 役割\n\n規模 NaN NaN NaN NaN 使用\n言語 NaN DB NaN サーバ\nOS NaN FW・MW\nツール\n等 NaN 担当工程 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 要件定義 基本設計 詳細設計 実装・単体 結合テスト 総合テスト 保守・運用 1 44256.0 - 45382 ■RPGゲーム開発 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN プログラマ NaN NaN NaN NaN C++\nHaxe NaN NaN NaN NaN NaN VisualStudio\nVisualStudioCode\nその他、自社内ツール NaN NaN ● ● ● ● ● NaN NaN NaN NaN NaN ≪仕事内容≫\n自社エンジンを使用し、HaxeとC++でRPGゲームのUI開発を担当。メ\nニューUI、マップUI、アイテム管理UI、バトルUI、ステータスUIなど多岐にわたる\nUIを設計・実装しました。\nまた、UI以外にもセーブデータ管理やカメラ処理を担当。\n小規模チームのリーダーとしてプロジェクトの進行を管理しました。\n≪心がけていたこと≫\nユーザーが直感的に操作できるUI設計を意識し、チーム全体の\n進捗管理とメンバーサポートに注力。\n≪培った能力≫\nUI/UXデザインと実装力を強化し、リーダーシップとプロジェクト管理能\n力を培いました。 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN チーム\n8名\n\n開発\n200名\n\n全体\n700名 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 37.0 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 2 44075.0 - 44255 ■カジュアルゲーム開発 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN プログラマ NaN NaN NaN NaN c# NaN NaN NaN NaN NaN Unity\nVisualStudio NaN NaN ● ● ● ● ● NaN NaN NaN NaN NaN ≪仕事内容≫\nUnityとC#を用いて、1か月間で1つのカジュアルゲームを開発。\nプロジェクト全体を一人で担当し、UIデザイン、ゲームシステムの実装、\nレベルデザインを行い、開始から終了までの全工程を担いました。\n約6か月間で複数のカジュアルゲームを制作しました。\n≪心がけていたこと≫\n短期間での高品質なゲーム完成を目指し、効率的なタスク管理と\n一貫したクオリティの維持に注力。\n≪培った能力≫\nフルスタックなゲーム開発能力を習得し、UIやゲームシステムの統一感\nを高めるスキルを磨きました。 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN チーム\n2名\n\n開発\n1名\n\n全体\n3名 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 6.0 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 3 NaN - NaN ■ NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN"
+    cleaned_text = preprocess_text(text_data)
+
+    # 전처리된 텍스트 분할
+    text_chunks = split_text(cleaned_text)
 
     # 요약 모델 로드
     summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
     
-    # 요약 수행
-    summary = summarizer(text_data, max_length=200, min_length=50, do_sample=False)
+    # 각 조각 요약 및 결과 합치기
+    summaries = []
+    for chunk in text_chunks:
+        summary = summarizer(chunk, max_length=200, min_length=50, do_sample=False)
+        summaries.append(summary[0]['summary_text'])
     
-    # 결과 출력
+    # 최종 요약 결과
+    final_summary = " ".join(summaries)
     st.write("요약 결과:")
-    st.write(summary[0]['summary_text'])
+    st.write(final_summary)
         
     # 初回のみ "contracts" を初期化
     if "contracts" not in st.session_state:
