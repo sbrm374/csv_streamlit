@@ -8,8 +8,6 @@ import io
 import os
 import plotly.express as px
 import chardet
-from transformers import pipeline
-import re
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lsa import LsaSummarizer
