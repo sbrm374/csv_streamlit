@@ -81,12 +81,12 @@ def perform_mecab_analysis(text):
     tokens = tokenizer.tokenize(text, wakati=True)
     return " ".join(tokens)
 
-# 요약 함수
-def summarize_text(text, max_sentences=2):
-    parser = PlaintextParser.from_string(text, SumyTokenizer("japanese"))
-    summarizer = LsaSummarizer()
-    summary = summarizer(parser.document, max_sentences)
-    return [str(sentence) for sentence in summary]
+# # 요약 함수
+# def summarize_text(text, max_sentences=2):
+#     parser = PlaintextParser.from_string(text, SumyTokenizer("japanese"))
+#     summarizer = LsaSummarizer()
+#     summary = summarizer(parser.document, max_sentences)
+#     return [str(sentence) for sentence in summary]
     
 # フォント設定
 font_path = "./fonts/NotoSansJP-Regular.otf"
