@@ -13,8 +13,42 @@ from sumy.nlp.tokenizers import Tokenizer as SumyTokenizer
 from sumy.summarizers.lsa import LsaSummarizer
 import re
 from janome.tokenizer import Tokenizer
+import requests
 
+# DeepSeek API 엔드포인트
+api_url = "https://api.deepseek.com/chat/completions"
 
+# 발급받은 API 키
+api_key = "sk-078fbb28ff064aa582be5d0a3767cc6f"
+
+# 요청 헤더 설정
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {api_key}"
+}
+
+# 요약 요청 함수
+def summarize_text(text):
+    # 요청 데이터 설정
+    data = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant specialized in text summarization."},
+            {"role": "user", "content": f"Please summarize the following text: {text}"}
+        ],
+        "stream": False
+    }
+
+    # API 호출
+    response = requests.post(api_url, headers=headers, json=data)
+
+    # 응답 처리
+    if response.status_code == 200:
+        result = response.json()
+        return result['choices'][0]['message']['content']
+    else:
+        return f"오류 발생: {response.status_code} - {response.text}"
+        
 def preprocess_text(text):
     """
     텍스트 전처리 함수: 불필요한 정보 제거 및 정리.
@@ -320,9 +354,20 @@ with tab_all:
             summary = summarize_text(wakati_text)
             all_summaries.extend(summary)
     
-        st.subheader("要約結果")
+        st.subheader("要約実行")
         for sentence in all_summaries:
             st.write(sentence)
+
+    # 요약 버튼
+    if st.button("要約実行"):
+        if input_text.strip():  # 텍스트가 입력된 경우에만 실행
+            with st.spinner("要約中..."):
+                summary = summarize_text(input_text)
+            st.success("要約完了!")
+            st.write("### 要約実行:")
+            st.write(summary)
+        else:
+            st.warning("요약할 텍스트를 입력하세요!")
         
     # 初回のみ "contracts" を初期化
     if "contracts" not in st.session_state:
