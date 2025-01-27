@@ -16,3 +16,12 @@ for i in range(1, 11):
         value=st.session_state["checkboxes"][f"checkbox_{i}"],  # 상태 유지
         key=f"checkbox_{i}"  # 고유 키
     )
+
+st.title("체크박스 초기화 버튼")
+st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:")
+
+# 초기화 버튼
+if st.button("초기화"):
+    for i in range(1, 11):  # 체크박스 1~10
+        st.session_state[f"checkbox_{i}"] = False  # 상태 초기화
+    st.success("모든 체크박스를 해제했습니다!")
