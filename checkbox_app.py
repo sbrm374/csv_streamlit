@@ -11,7 +11,12 @@ st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:"
 
 if st.button("초기화"):
     st.write("초기화 버튼이 클릭되었습니다.")
-    # 상태 초기화
+
+    # 강제 동작: 모든 체크박스를 한 번씩 토글 (상태를 잠시 True로 변경)
+    for i in range(1, 11):
+        st.session_state["checkboxes"][f"checkbox_{i}"] = True
+
+    # 초기화: 모든 체크박스를 False로 재설정
     for i in range(1, 11):
         st.session_state["checkboxes"][f"checkbox_{i}"] = False
 
@@ -29,14 +34,14 @@ for i in range(1, 11):
     current_value = st.session_state["checkboxes"][checkbox_key]
     st.write(f"렌더링 전 체크박스 {i} 상태: {current_value}")
 
-    # UI와 상태 강제 동기화
+    # 렌더링 강제 동기화
     updated_value = st.checkbox(
         f"체크박스 {i}",
         value=current_value,
         key=checkbox_key
     )
 
-    # 상태가 변경된 경우 동기화
+    # 상태가 변경된 경우 업데이트
     if updated_value != current_value:
         st.session_state["checkboxes"][checkbox_key] = updated_value
         st.write(f"체크박스 {i} 상태가 변경되었습니다. 업데이트 중...")
