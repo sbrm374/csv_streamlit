@@ -14,16 +14,15 @@ st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:"
 
 if st.button("초기화"):
     # Syncing 상태로 변경
-    st.session_state["sync_radio"] = "Syncing"
-    st.write(f"동기화 상태를 'Syncing'으로 설정: {st.session_state['sync_radio']}")
+    st.session_state.sync_radio = "Syncing"
+    st.write(f"동기화 상태를 'Syncing'으로 변경: {st.session_state['sync_radio']}")
 
     # 초기화: 모든 체크박스를 False로 설정
     for i in range(1, 11):
         checkbox_key = f"checkbox_{i}"
         st.session_state["checkboxes"][checkbox_key] = False
 
-    # 초기화 완료 후 동기화 상태를 None으로 되돌림
-    st.session_state["sync_radio"] = "None"
+    # 초기화 후 상태 출력
     st.write("초기화 후 상태:", st.session_state["checkboxes"])
 
 # 체크박스 렌더링 함수
@@ -47,7 +46,7 @@ st.write("체크박스를 선택하세요:")
 render_checkboxes()
 
 # 동기화 상태 확인을 위한 radio
-st.radio(
+selected_radio = st.radio(
     "동기화 상태:",
     options=["None", "Syncing"],
     index=0 if st.session_state["sync_radio"] == "None" else 1,
@@ -56,3 +55,4 @@ st.radio(
 
 # 상태 디버그 출력
 st.write("현재 체크박스 상태:", st.session_state["checkboxes"])
+st.write("현재 동기화 상태:", st.session_state["sync_radio"])
