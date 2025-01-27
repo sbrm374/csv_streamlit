@@ -13,18 +13,18 @@ st.title("체크박스 초기화 버튼")
 st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:")
 
 if st.button("초기화"):
-    # Syncing ↔ None 상태 토글
+        # Syncing ↔ None 상태 토글
     if st.session_state.sync_radio == "None":
         st.session_state.sync_radio = "Syncing"
     else:
         st.session_state.sync_radio = "None"
-
-    # 모든 체크박스를 False로 설정
+    
+    # 초기화: 모든 체크박스를 False로 설정
     for i in range(1, 11):
         checkbox_key = f"checkbox_{i}"
         st.session_state["checkboxes"][checkbox_key] = False
 
-    # 디버그 로그
+    # 초기화 후 상태 출력
     st.write("초기화 후 상태:", st.session_state["checkboxes"])
 
 # 체크박스 렌더링 함수
