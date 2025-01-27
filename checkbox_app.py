@@ -15,14 +15,12 @@ if st.button("초기화"):
         st.session_state["checkboxes"][checkbox_key] = False
 
     # 강제로 UI 동기화
-    st.write("초기화 후 상태:", st.session_state["checkboxes"])
+    st.experimental_rerun()  # 페이지를 새로고침하여 체크박스 상태를 업데이트
 
 # 체크박스 렌더링 함수
 def render_checkboxes():
     for i in range(1, 11):
         checkbox_key = f"checkbox_{i}"
-        # 렌더링 전 상태 출력
-        st.write(f"렌더링 전 체크박스 {i} 상태: {st.session_state['checkboxes'][checkbox_key]}")
         # 체크박스 렌더링
         current_value = st.checkbox(
             f"체크박스 {i}",
@@ -30,11 +28,7 @@ def render_checkboxes():
             key=checkbox_key,
         )
         # 상태 동기화
-        if current_value != st.session_state["checkboxes"][checkbox_key]:
-            st.session_state["checkboxes"][checkbox_key] = current_value
-            st.write(f"체크박스 {i} 상태가 변경되었습니다. 업데이트 중...")
-        # 렌더링 후 상태 출력
-        st.write(f"렌더링 후 체크박스 {i} 상태: {st.session_state['checkboxes'][checkbox_key]}")
+        st.session_state["checkboxes"][checkbox_key] = current_value
 
 # 체크박스 렌더링 호출
 st.title("체크박스 예제")
@@ -43,4 +37,3 @@ render_checkboxes()
 
 # 상태 디버그 출력
 st.write("현재 체크박스 상태:", st.session_state["checkboxes"])
-
