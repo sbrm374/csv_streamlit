@@ -36,4 +36,4 @@ if st.button("초기화"):
     # 모든 체크박스 상태 초기화
     for i in range(1, 11):
         st.session_state["checkboxes"][f"checkbox_{i}"] = False
-    st.experimental_rerun()  # UI 강제 새로고침
+    st.rerun()  # UI 강제 새로고침
