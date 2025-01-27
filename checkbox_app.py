@@ -15,7 +15,7 @@ if st.button("초기화"):
         st.session_state["checkboxes"][checkbox_key] = False
 
     # 동기화를 강제로 유도
-    st.experimental_rerun()
+    st.rerun()
 
 # 체크박스 렌더링
 st.title("체크박스 예제")
