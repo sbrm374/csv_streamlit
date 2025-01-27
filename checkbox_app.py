@@ -25,5 +25,5 @@ if st.button("초기화"):
         st.session_state["checkboxes"][f"checkbox_{i}"] = False
     
     # 초기화 후 상태 출력
-    st.write("초기화 후 상태:", st.session_state["checkboxes"])
+    # st.write("초기화 후 상태:", st.session_state["checkboxes"])
     st.rerun()
