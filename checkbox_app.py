@@ -9,7 +9,7 @@ st.title("체크박스 예제")
 st.write("체크박스를 선택하세요:")
 
 for i in range(1, 11):
-    st.checkbox(
+    st.session_state["checkboxes"][f"checkbox_{i}"] = st.checkbox(
         f"체크박스 {i}",
         value=st.session_state["checkboxes"][f"checkbox_{i}"],  # 상태 유지
         key=f"checkbox_{i}"  # 고유 키
@@ -25,5 +25,5 @@ if st.button("초기화"):
         st.session_state["checkboxes"][f"checkbox_{i}"] = False
     
     # 초기화 후 상태 출력
-    # st.write("초기화 후 상태:", st.session_state["checkboxes"])
+    st.write("초기화 후 상태:", st.session_state["checkboxes"])
     st.rerun()
