@@ -4,7 +4,7 @@ import streamlit as st
 if "checkboxes" not in st.session_state:
     st.session_state["checkboxes"] = {f"checkbox_{i}": False for i in range(1, 11)}
 
-# 추가적인 radio 동기화 상태
+# 동기화를 위한 radio 상태 초기화
 if "sync_radio" not in st.session_state:
     st.session_state["sync_radio"] = "None"
 
@@ -13,16 +13,16 @@ st.title("체크박스 초기화 버튼")
 st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:")
 
 if st.button("초기화"):
-    # radio를 사용해 동기화
+    # Syncing 상태로 변경
     st.session_state["sync_radio"] = "Syncing"
-    st.write(f"Radio를 통해 동기화 중: {st.session_state['sync_radio']}")
+    st.write(f"동기화 상태를 'Syncing'으로 설정: {st.session_state['sync_radio']}")
 
     # 초기화: 모든 체크박스를 False로 설정
     for i in range(1, 11):
         checkbox_key = f"checkbox_{i}"
         st.session_state["checkboxes"][checkbox_key] = False
 
-    # 동기화 후 상태 리셋
+    # 초기화 완료 후 동기화 상태를 None으로 되돌림
     st.session_state["sync_radio"] = "None"
     st.write("초기화 후 상태:", st.session_state["checkboxes"])
 
