@@ -15,7 +15,6 @@ st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:"
 if st.button("초기화"):
     # Syncing 상태로 변경
     st.session_state.sync_radio = "Syncing"
-    st.write(f"동기화 상태를 'Syncing'으로 변경: {st.session_state['sync_radio']}")
 
     # 초기화: 모든 체크박스를 False로 설정
     for i in range(1, 11):
@@ -49,7 +48,7 @@ render_checkboxes()
 selected_radio = st.radio(
     "동기화 상태:",
     options=["None", "Syncing"],
-    index=0 if st.session_state["sync_radio"] == "None" else 1,
+    index=["None", "Syncing"].index(st.session_state["sync_radio"]),  # index 동기화
     key="sync_radio",
 )
 
