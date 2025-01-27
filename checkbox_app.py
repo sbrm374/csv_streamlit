@@ -19,11 +19,18 @@ for i in range(1, 11):
 st.title("체크박스 초기화 버튼")
 st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:")
 
+if "reset_done" not in st.session_state:
+    st.session_state["reset_done"] = False
+
 if st.button("초기화"):
     # 상태 초기화
     for i in range(1, 11):
         st.session_state["checkboxes"][f"checkbox_{i}"] = False
-    
-    # 초기화 후 상태 출력
+    st.session_state["reset_done"] = True  # 초기화 완료 플래그 설정
+    st.rerun()  # UI 강제 새로고침
+
+# 초기화 후 상태 출력
+if st.session_state["reset_done"]:
     st.write("초기화 후 상태:", st.session_state["checkboxes"])
-    st.rerun()
+    st.session_state["reset_done"] = False  # 플래그 초기화
+
