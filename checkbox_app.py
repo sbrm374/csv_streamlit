@@ -14,9 +14,6 @@ if st.button("초기화"):
         checkbox_key = f"checkbox_{i}"
         st.session_state["checkboxes"][checkbox_key] = False
 
-    # 페이지 새로 고침
-    st.session_state["rerun"] = True  # 상태를 추가해서 새로 고침을 제어
-
 # 체크박스 렌더링 함수
 def render_checkboxes():
     for i in range(1, 11):
@@ -33,12 +30,7 @@ def render_checkboxes():
 # 체크박스 렌더링 호출
 st.title("체크박스 예제")
 st.write("체크박스를 선택하세요:")
-
-# 리렌더링을 위한 조건문
-if st.session_state.get("rerun", False):
-    st.session_state["rerun"] = False  # 리렌더링 플래그 초기화
-else:
-    render_checkboxes()
+render_checkboxes()
 
 # 상태 디버그 출력
 st.write("현재 체크박스 상태:", st.session_state["checkboxes"])
