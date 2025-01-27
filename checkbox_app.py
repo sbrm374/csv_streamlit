@@ -23,6 +23,9 @@ if st.button("초기화"):
         checkbox_key = f"checkbox_{i}"
         st.session_state["checkboxes"][checkbox_key] = False
 
+    # 상태 동기화를 강제로 보장하기 위해 재실행
+    st.experimental_rerun()
+
 # 체크박스 렌더링 함수
 def render_checkboxes():
     for i in range(1, 11):
