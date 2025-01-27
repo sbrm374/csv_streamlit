@@ -9,16 +9,16 @@ st.title("체크박스 초기화 버튼")
 st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:")
 
 if st.button("초기화"):
+    # 목업 체크박스를 이용해 UI와 동기화 강제
+    st.checkbox("목업 체크박스", value=True, key="mock_checkbox", label_visibility="hidden")
+    st.session_state["mock_checkbox"] = False  # 목업 체크박스를 초기화
+
     # 모든 체크박스를 False로 설정
     for i in range(1, 11):
         checkbox_key = f"checkbox_{i}"
         st.session_state["checkboxes"][checkbox_key] = False
 
-    # 강제로 UI 동기화 (한 번 False로 변경한 뒤 다시 False로 설정)
-    for i in range(1, 11):
-        checkbox_key = f"checkbox_{i}"
-        st.session_state["checkboxes"][checkbox_key] = True  # 임시로 True로 설정
-        st.session_state["checkboxes"][checkbox_key] = False  # 다시 False로 설정
+    st.write("초기화 후 상태:", st.session_state["checkboxes"])
 
 # 체크박스 렌더링 함수
 def render_checkboxes():
