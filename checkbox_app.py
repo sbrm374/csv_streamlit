@@ -8,11 +8,17 @@ def sync_checkboxes():
     """모든 체크박스 상태를 UI와 동기화"""
     for i in range(1, 11):
         checkbox_key = f"checkbox_{i}"
-        st.session_state["checkboxes"][checkbox_key] = st.checkbox(
+        # 현재 체크박스 상태 읽기
+        current_value = st.session_state["checkboxes"][checkbox_key]
+        # 체크박스 렌더링
+        new_value = st.checkbox(
             f"체크박스 {i}",
-            value=st.session_state["checkboxes"][checkbox_key],
+            value=current_value,
             key=checkbox_key
         )
+        # 상태가 변경되었으면 업데이트
+        if new_value != current_value:
+            st.session_state["checkboxes"][checkbox_key] = new_value
 
 # 초기화 버튼
 st.title("체크박스 초기화 버튼")
@@ -20,12 +26,13 @@ st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:"
 
 if st.button("초기화"):
     st.write("초기화 버튼이 클릭되었습니다.")
-
-    # 체크박스 상태를 강제로 동기화
+    
+    # 체크박스 상태를 강제로 초기화
     for i in range(1, 11):
         checkbox_key = f"checkbox_{i}"
-        st.session_state["checkboxes"][checkbox_key] = False  # 강제 초기화
+        st.session_state["checkboxes"][checkbox_key] = False
 
+    # 초기화 후 상태 출력
     st.write("초기화 후 상태:", st.session_state["checkboxes"])
 
 # 체크박스 렌더링
