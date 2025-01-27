@@ -10,7 +10,8 @@ st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:"
 
 if st.button("초기화"):
     # 목업 체크박스 렌더링 (숨김 처리)
-    st.checkbox("목업 체크박스", value=True, key="mock_checkbox", label_visibility="hidden")
+    st.checkbox("목업 체크박스", value=True, key="mock_checkbox")
+                # , label_visibility="hidden")
 
     # 모든 체크박스를 False로 설정
     for i in range(1, 11):
