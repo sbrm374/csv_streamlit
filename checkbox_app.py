@@ -24,15 +24,22 @@ st.write("체크박스를 선택하세요:")
 for i in range(1, 11):
     checkbox_key = f"checkbox_{i}"
 
-    # 렌더링 전 상태 출력
-    st.write(f"렌더링 전 체크박스 {i} 상태: {st.session_state['checkboxes'][checkbox_key]}")
+    # 렌더링 전 상태를 명시적으로 동기화
+    current_value = st.session_state["checkboxes"][checkbox_key]
+    st.write(f"렌더링 전 체크박스 {i} 상태: {current_value}")
 
     # 체크박스 렌더링
-    st.checkbox(
+    new_value = st.checkbox(
         f"체크박스 {i}",
-        value=st.session_state["checkboxes"][checkbox_key],
+        value=current_value,  # 항상 최신 상태를 참조
         key=checkbox_key
     )
+
+    # 상태가 변경된 경우 동기화
+    if new_value != current_value:
+        st.session_state["checkboxes"][checkbox_key] = new_value
+        st.write(f"체크박스 {i} 상태가 변경되었습니다. 업데이트 중...")
+        st.write(f"업데이트 후 체크박스 {i} 상태: {st.session_state['checkboxes'][checkbox_key]}")
 
 # 최종 상태 출력
 st.write("현재 체크박스 상태:", st.session_state["checkboxes"])
