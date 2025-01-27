@@ -28,6 +28,18 @@ if st.button("초기화"):
     # 초기화를 강제로 UI에 반영
     st.write("초기화 후 상태:", st.session_state["checkboxes"])
 
+    # 체크박스 렌더링 전후 상태 확인
+    for i in range(1, 11):
+        checkbox_key = f"checkbox_{i}"
+        st.write(f"렌더링 전 체크박스 {i} 상태:", st.session_state["checkboxes"][checkbox_key])
+        # 렌더링 수행
+        st.session_state["checkboxes"][checkbox_key] = st.checkbox(
+            f"체크박스 {i}",
+            value=st.session_state["checkboxes"][checkbox_key],
+            key=checkbox_key
+        )
+        st.write(f"렌더링 후 체크박스 {i} 상태:", st.session_state["checkboxes"][checkbox_key])
+        
 # 체크박스 렌더링
 st.title("체크박스 예제")
 st.write("체크박스를 선택하세요:")
