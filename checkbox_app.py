@@ -17,14 +17,16 @@ if st.button("초기화"):
 st.title("체크박스 예제")
 st.write("체크박스를 선택하세요:")
 
+# 체크박스 상태 강제 초기화 및 동기화
 for i in range(1, 11):
     checkbox_key = f"checkbox_{i}"
-    
-    # 체크박스 렌더링
+    if checkbox_key not in st.session_state["checkboxes"]:
+        st.session_state["checkboxes"][checkbox_key] = False
+    # 체크박스 상태 강제 렌더링
     st.session_state["checkboxes"][checkbox_key] = st.checkbox(
         f"체크박스 {i}",
-        value=st.session_state["checkboxes"][checkbox_key],  # 상태 유지
-        key=checkbox_key  # 고유 키
+        value=st.session_state["checkboxes"][checkbox_key],
+        key=checkbox_key
     )
 
 # 상태 디버깅 출력
