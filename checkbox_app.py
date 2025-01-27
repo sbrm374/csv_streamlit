@@ -26,11 +26,18 @@ st.write("체크박스를 선택하세요:")
 
 for i in range(1, 11):
     checkbox_key = f"checkbox_{i}"
+
+    # 강제로 상태를 True로 바꿨다가 False로 초기화
+    if st.session_state["checkboxes"][checkbox_key]:
+        # 상태를 변경 (의도적으로 강제 클릭)
+        st.session_state["checkboxes"][checkbox_key] = False
+        st.session_state["checkboxes"][checkbox_key] = True
+
+    # 렌더링
     st.session_state["checkboxes"][checkbox_key] = st.checkbox(
         f"체크박스 {i}",
         value=st.session_state["checkboxes"][checkbox_key],
         key=checkbox_key
     )
-
 # 상태 디버그 출력
 st.write("현재 체크박스 상태:", st.session_state["checkboxes"])
