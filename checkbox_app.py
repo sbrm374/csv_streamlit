@@ -14,8 +14,8 @@ if st.button("초기화"):
         checkbox_key = f"checkbox_{i}"
         st.session_state["checkboxes"][checkbox_key] = False
 
-    # 강제로 UI 동기화
-    st.rerun()  # 페이지를 새로고침하여 체크박스 상태를 업데이트
+    # 페이지 새로 고침
+    st.rerun()
 
 # 체크박스 렌더링 함수
 def render_checkboxes():
