@@ -23,6 +23,6 @@ st.write("모든 체크박스를 해제하려면 아래 버튼을 누르세요:"
 
 if st.button("초기화"):
     # 체크박스 상태 초기화
-    for i in range(1, 11):
-        st.session_state[f"checkbox_{i}"] = False  # 상태를 초기화
+    updated_values = {f"checkbox_{i}": False for i in range(1, 11)}
+    st.session_state.update(updated_values)  # 상태를 업데이트
     st.experimental_rerun()  # UI를 강제로 새로고침
