@@ -19,6 +19,8 @@ st.write("체크박스를 선택하세요:")
 
 for i in range(1, 11):
     checkbox_key = f"checkbox_{i}"
+    
+    # 체크박스 렌더링
     st.session_state["checkboxes"][checkbox_key] = st.checkbox(
         f"체크박스 {i}",
         value=st.session_state["checkboxes"][checkbox_key],  # 상태 유지
