@@ -15,9 +15,13 @@ if st.button("초기화"):
     for i in range(1, 11):
         st.session_state["checkboxes"][f"checkbox_{i}"] = False
 
-    # 강제 상태 갱신 로그
+    # 강제 동기화를 위해 모든 체크박스를 다시 렌더링
     for i in range(1, 11):
-        st.write(f"초기화 후 체크박스 {i} 상태: {st.session_state['checkboxes'][f'checkbox_{i}']}")
+        st.checkbox(
+            f"체크박스 {i}",
+            value=False,  # 초기화된 값을 강제로 UI에 반영
+            key=f"checkbox_{i}"
+        )
 
 # 체크박스 렌더링
 st.title("체크박스 예제")
@@ -31,8 +35,17 @@ for i in range(1, 11):
     st.write(f"렌더링 전 체크박스 {i} 상태: {st.session_state['checkboxes'][checkbox_key]}")
 
     # 체크박스 렌더링
-    st.checkbox(
+    new_value = st.checkbox(
         f"체크박스 {i}",
         value=st.session_state["checkboxes"][checkbox_key],
         key=checkbox_key
     )
+
+    # 상태가 변경된 경우 업데이트
+    if new_value != st.session_state["checkboxes"][checkbox_key]:
+        st.session_state["checkboxes"][checkbox_key] = new_value
+        st.write(f"체크박스 {i} 상태가 변경되었습니다. 업데이트 중...")
+        st.write(f"업데이트 후 체크박스 {i} 상태: {st.session_state['checkboxes'][checkbox_key]}")
+
+# 최종 상태 출력
+st.write("현재 체크박스 상태:", st.session_state["checkboxes"])
