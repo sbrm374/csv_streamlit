@@ -20,6 +20,10 @@ if st.button("초기화"):
     for i in range(1, 11):
         st.session_state["checkboxes"][f"checkbox_{i}"] = False
 
+    # 초기화: 모든 체크박스를 False로 재설정
+    for i in range(1, 11):
+        st.session_state["checkboxes"][f"checkbox_{i}"] = False
+
     # 초기화 상태 출력
     st.write("초기화 후 상태:", st.session_state["checkboxes"])
 
