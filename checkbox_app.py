@@ -43,3 +43,4 @@ render_checkboxes()
 
 # 상태 디버그 출력
 st.write("현재 체크박스 상태:", st.session_state["checkboxes"])
+
